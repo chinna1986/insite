@@ -13,7 +13,6 @@
         "scripts": [
           "scripts/worker.js",
           "scripts/malory.js",
-          "scripts/murmurhash3_gc.js",
           "scripts/properties.js",
           "scripts/tracking.js",
           "scripts/vendor-background.js",
