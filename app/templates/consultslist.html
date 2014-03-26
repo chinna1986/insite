@@ -1,0 +1,33 @@
+<style>
+  ul.glg-consults-list, ul.glg-consults-list li {
+    min-width:200px;
+    visibility:visible;
+    opacity:1;
+  }
+  ul.glg-consults-list {
+    min-width:200px;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    text-align: left;
+    z-index: 2000;
+    margin-top:1px;
+  }
+  .glg-close-button {
+    position:relative;
+  }
+  .glg-close-button a {
+    float:right;
+    display:inline-block;
+    border: 1px solid rgb(211,211,211);
+    color: white;
+  }
+</style>
+<ul class="glg-consults-list">
+  <li class="glg-close-button">Add To Open Consult:<a class="glg-glyph-x" style="border:1px solid rgb(211,211,211)"></a></li>
+  {{#consults}}
+    <li class="glg-consult-row">
+      <a href="{{Consultation_Id}}" target="_blank" class="glg-add-to-consult">{{Title}}</a>
+    </li>
+  {{/consults}}
+</ul>

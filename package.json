@@ -1,0 +1,28 @@
+{
+  "name": "GLGInsight",
+  "version": "0.1.0",
+  "dependencies": {},
+  "repository": "http://github.glgroup.com/asegal/Got-Names",
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-copy": "~0.4.1",
+    "grunt-contrib-coffee": "~0.10.1",
+    "grunt-contrib-clean": "~0.4.0",
+    "grunt-contrib-watch": "~0.5.2",
+    "grunt-concurrent": "~0.3.0",
+    "load-grunt-tasks": "~0.1.0",
+    "time-grunt": "~0.1.1",
+    "browserify": "~2.35.0",
+    "grunt-browserify": "~1.2.9",
+    "grunt-crx": "~0.3.3",
+    "grunt-retire": "~0.1.1",
+    "grunt-contrib-connect": "~0.5.0",
+    "diacritics": "~1.1.0",
+    "hogan.js": "~2.0.0",
+    "grunt-contrib-hogan": "~0.2.3",
+    "git-web-platform": "git://github.com/glg/git-web-platform.git"
+  },
+  "engines": {
+    "node": ">=0.8.0"
+  }
+}

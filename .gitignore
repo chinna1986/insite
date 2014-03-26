@@ -1,0 +1,9 @@
+.iml
+.idea
+.DS_Store
+*.swp
+dist
+node_modules
+tmp
+temp
+package

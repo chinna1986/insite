@@ -1,0 +1,71 @@
+{
+    "name": "Got Names?",
+    "version": "0.3.0",
+    "manifest_version": 2,
+    "description": "Find people, on any page, anywhere on the web",
+    "icons": {
+        "19": "images/icon-19.png",
+        "16": "images/icon-16.png",
+        "38": "images/icon-38.png",
+        "128": "images/icon-128.png"
+    },
+    "background": {
+        "scripts": [
+          "scripts/worker.js",
+          "scripts/malory.js",
+          "scripts/murmurhash3_gc.js",
+          "scripts/properties.js",
+          "scripts/tracking.js",
+          "scripts/vendor-background.js",
+          "scripts/utils.js",
+          "scripts/background.js"
+        ],
+        "persistent": true
+    },
+    "browser_action": {
+        "default_icon": {
+            "19": "images/icon-19.png",
+            "16": "images/icon-16.png",
+            "38": "images/icon-38.png",
+            "128": "images/icon-128.png"
+        },
+        "default_title": "GLGInsight",
+        "default_popup": "popup.html"
+    },
+    "options_page": "options.html",
+    "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
+    "content_scripts": [
+        {
+            "matches": [
+                "http://*/*",
+                "https://*/*"
+            ],
+            "css": [
+                "styles/glglyphs.css"
+            ],
+            "js": [
+                "scripts/properties.js",
+                "scripts/tracking.js",
+                "scripts/vendor-content.js",
+                "scripts/utils.js",
+                "scripts/templates.js",
+                "scripts/contentscript.js"
+            ],
+            "run_at": "document_end"
+        }
+    ],
+    "permissions": [
+        "storage",
+        "unlimitedStorage",
+        "cookies",
+        "*://*.glgroup.com/*",
+        "*://localhost/*",
+        "*://10.20.41.134/*",
+        "*://127.0.0.1/*",
+        "system.memory"
+    ],
+    "update_url": "http://github.glgroup.com/SearchDeliveryTeam/Got-Names/raw/package/update.xml",
+    "web_accessible_resources": [
+        "templates/flyout.html"
+    ]
+}
