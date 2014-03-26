@@ -62,7 +62,7 @@
         "*://127.0.0.1/*",
         "system.memory"
     ],
-    "update_url": "http://github.glgroup.com/SearchDeliveryTeam/Got-Names/raw/package/update.xml",
+    "update_url": "https://raw.githubusercontent.com/glg/insite/package/update.xml",
     "web_accessible_resources": [
         "templates/flyout.html"
     ]
