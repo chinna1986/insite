@@ -11,10 +11,10 @@
     },
     "background": {
         "scripts": [
+          "scripts/tracking.js",
           "scripts/worker.js",
           "scripts/malory.js",
           "scripts/properties.js",
-          "scripts/tracking.js",
           "scripts/vendor-background.js",
           "scripts/utils.js",
           "scripts/background.js"
@@ -43,8 +43,8 @@
                 "styles/glglyphs.css"
             ],
             "js": [
-                "scripts/properties.js",
                 "scripts/tracking.js",
+                "scripts/properties.js",
                 "scripts/vendor-content.js",
                 "scripts/utils.js",
                 "scripts/templates.js",
