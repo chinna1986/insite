@@ -1,8 +1,8 @@
 {
   "name": "GLGInsight",
-  "version": "0.1.0",
+  "version": "0.4.0",
   "dependencies": {},
-  "repository": "http://github.glgroup.com/asegal/Got-Names",
+  "repository": "https://github.com/glg/insite",
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-contrib-copy": "~0.4.1",
