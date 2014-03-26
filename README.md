@@ -1,4 +1,4 @@
 Got-Names
 =========
 
-Chrome extension to extract names from any web page
+chrome extension to find names on web pages
