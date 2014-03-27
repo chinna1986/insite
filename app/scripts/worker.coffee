@@ -168,7 +168,8 @@ updateLookupsPromise = (startId) ->
             'map':                map,
             'gazetteer':          gazetteer,
             'lastUpdate':         serverLastCompleteUpdate,
-            'lastCompleteUpdate': serverLastCompleteUpdate
+            'lastCompleteUpdate': serverLastCompleteUpdate,
+            'maxId':              maxId
           writeLookups fileDatum
           lastCompleteUpdate = serverLastCompleteUpdate
           resolve type
@@ -254,6 +255,8 @@ loadLookups = (startId) ->
     storedLastCompleteUpdate = readFile(prefix+'lastCompleteUpdate')
     lastUpdate = new Date(storedLastUpdate) if storedLastUpdate
     lastCompleteUpdate = new Date(storedLastCompleteUpdate) if storedLastCompleteUpdate
+    tempMaxId = readFile(prefix+'maxId')
+    maxId = parseInt(tempMaxId) if tempMaxId?
 
     # Get Data
     map = readFile(prefix+'map',true)
@@ -306,6 +309,7 @@ self.addEventListener "message", ((e) ->
 
 generateReturnMessage = (workerArguments, demand) ->
   workerArguments.startId = maxId+1
+  logTiming "online with " + Object.keys(map).length + " records"
   if getMaxRecords() <= Object.keys(map).length
     message = {'demand': demand, 'workerArguments': workerArguments, 'officiallyOutOfMemory':true}
   else
