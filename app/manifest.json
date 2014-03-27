@@ -28,7 +28,7 @@
             "38": "images/icon-38.png",
             "128": "images/icon-128.png"
         },
-        "default_title": "GLGInsight",
+        "default_title": "GLGInsite",
         "default_popup": "popup.html"
     },
     "options_page": "options.html",
