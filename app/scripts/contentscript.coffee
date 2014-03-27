@@ -193,13 +193,11 @@ processData = (nodes, nodeMetadata) ->
         bindFlyout icon, nodeMatch.matchingCmGroups[count]
         count++
 
-blacklist = ['glgroup.com','mail.google.com','facebook.com']
-reTLD = /\w*\.\w*$/
-
-isBlacklisted = (domain) ->
-  domain = domain.toLowerCase()
-  tld = domain.match(reTLD)[0]
-  blacklist.indexOf(domain) > -1 or blacklist.indexOf(tld) > -1
+blacklist = ['glgroup.com','glg.it','mail.google.com','facebook.com']
+isBlacklisted = () ->
+  fullDomainName = document.location.hostname.toLowerCase()
+  secondLevelDomainName = fullDomainName.split(".").slice(-2,-1)
+  blacklist.indexOf(secondLevelDomainName) > -1 or blacklist.indexOf(fullDomainName) > -1
 
 toggleExtension = (enabled) ->
   unless isBlacklisted(document.location.hostname)
