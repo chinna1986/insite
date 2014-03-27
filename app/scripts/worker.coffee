@@ -100,6 +100,19 @@ readDeltaFiles = () ->
     deltas.push JSON.parse(text)
   return deltas
 
+removeFile = (searchFileName) ->
+  try
+    dirReader = fs.root.createReader()
+    results = dirReader.readEntries()
+    for fileEntry in results
+      if fileEntry.name is searchFileName
+        logTiming 'removed '+fileEntry.name
+        fileEntry.remove()
+        return true
+    return false
+  catch e
+    return false
+
 readFile = (searchFileName, isJson) ->
   try
     dirReader = fs.root.createReader()
@@ -119,6 +132,7 @@ readFile = (searchFileName, isJson) ->
       return null
 
 writeLookups = (fileDatum) ->
+  # Write the Files Passed as an Argument to this Function
   for fileName, fileData of fileDatum
     fileEntry = fs.root.getFile prefix+fileName, {create:true}
     switch fileData.constructor.name
@@ -127,6 +141,13 @@ writeLookups = (fileDatum) ->
       else dataBlob = new Blob([fileData], {type: 'text/plain'})
     fileEntry.createWriter().write dataBlob
     logTiming fileName + ' written'
+
+# Check for Legacy Files and Erase
+removeLegacyFiles = () ->
+  legacyFileNames = ['cmMap','cmGazetteer','leadMap','leadGazetteer']
+  for legacyFileName in legacyFileNames
+    logTiming 'trying to remove '+legacyFileName
+    removeFile legacyFileName
 
 #----------------
 # Data Management
@@ -246,9 +267,10 @@ addItem = (item, key, mapFileWriter) ->
 
 loadLookups = (startId) ->
   new Promise (resolve, reject) ->
-    
-    # Initialize File System with a 1 GB Limit
+
+    # Initialize File System with a 1 GB Limit and Remove Legacy Files
     fs = webkitRequestFileSystemSync PERSISTENT, 1*1024*1024*1024
+    removeLegacyFiles()
 
     # Get Update Times
     storedLastUpdate = readFile(prefix+'lastUpdate')
@@ -279,6 +301,7 @@ loadLookups = (startId) ->
 #---------
 # Listener
 #---------
+
 self.addEventListener "message", ((e) ->
 
   importScripts('vendor-background.js') # Import Diacritics
