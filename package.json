@@ -20,6 +20,7 @@
     "diacritics": "~1.1.0",
     "hogan.js": "~2.0.0",
     "grunt-contrib-hogan": "~0.2.3",
+    "malory": "^0.0.4",
     "git-web-platform": "git://github.com/glg/git-web-platform.git"
   },
   "engines": {
