@@ -20,8 +20,8 @@ baseUrl = 'http://epiquery.glgroup.com'
 dataQueries =
   'completeQueries':
     'status': baseUrl+'/gotNames/dw/getStatus.mysql.mustache'
-    'cm':     baseUrl+'/cache4h/gotNames/dw/getCmAll.mysql.mustache',
-    'lead':   baseUrl+'/cache4h/gotNames/dw/getLeadAll.mysql.mustache',
+    'cm':     baseUrl+'/cache4h/gotNames/dw/getCmAll.mysql.mustache'
+    'lead':   baseUrl+'/cache4h/gotNames/dw/getLeadAll.mysql.mustache'
   'deltaQueries':
     'status': baseUrl+'/gotNames/glglive/getStatus.mustache'
     'cm':     baseUrl+'/gotNames/glglive/getCmDelta.mustache'
