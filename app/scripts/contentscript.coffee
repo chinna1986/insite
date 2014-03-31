@@ -196,7 +196,7 @@ processData = (nodes, nodeMetadata) ->
 blacklist = ['glgroup.com','glg.it','mail.google.com','facebook.com']
 isBlacklisted = () ->
   fullDomainName = document.location.hostname.toLowerCase()
-  secondLevelDomainName = fullDomainName.split(".").slice(-2,-1)
+  secondLevelDomainName = fullDomainName.split(".").slice(0,-2).join(".")
   blacklist.indexOf(secondLevelDomainName) > -1 or blacklist.indexOf(fullDomainName) > -1
 
 toggleExtension = (enabled) ->

@@ -310,7 +310,7 @@ self.addEventListener "message", ((e) ->
   workerArguments = e.data.workerArguments
   startId = workerArguments.startId
   counter = e.data.counter
-  demand = e.data.demand;
+  demand = e.data.demand
   if demand is 'load leads'
     type = 'lead'
   else if demand is 'load cms'
