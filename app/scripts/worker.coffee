@@ -152,34 +152,24 @@ removeLegacyFiles = () ->
 #----------------
 # Data Management
 #----------------
-checkStaleness = (data) ->
-  new Promise (resolve, reject) ->
-    serverLastCompleteUpdate = new Date(data[1][0].statusDate)
-    # Update if we have never done a complete update before, if we have zero records, or if the data is not stale
-    if lastCompleteUpdate is null or Object.keys(map).length is 0 or (lastCompleteUpdate - serverLastCompleteUpdate) isnt 0
-      gazetteer = {}
-      map = {}
-      resolve(serverLastCompleteUpdate)
-    else
-      reject('server data is outdated')
-
 updateLookups = () ->
   updateLookupsPromise().then () ->
     #logTiming 'querying deltas in ' + deltaUpdateInterval/1000 + ' seconds'
     #setTimeout updateLookups, deltaUpdateInterval
 
-needsFullUpdate = () ->
+needsFullUpdate = (serverLastCompleteUpdate) ->
   if lastCompleteUpdate is null
     return true
   else if typeof lastCompleteUpdate is 'undefined'
-    return true
-  else if ((new Date) - lastCompleteUpdate) > completeUpdateInterval
     return true
   else if Object.keys(map).length is 0
     return true
   else if maxId is -1
     return true
-  else return false
+  else if (serverLastCompleteUpdate - lastCompleteUpdate) > completeUpdateInterval and (lastCompleteUpdate - serverLastCompleteUpdate) isnt 0
+    return true
+  else
+    return false
 
 updateLookupsPromise = (startId) ->
   new Promise (resolve, reject) ->
@@ -187,17 +177,26 @@ updateLookupsPromise = (startId) ->
     logTiming 'lastCompleteUpdate '+lastCompleteUpdate
 
     # Full Update
-    if needsFullUpdate()
-      getJSON(dataQueries.completeQueries.status)
-      .then checkStaleness
-      .then (serverLastCompleteUpdate) ->
+    getJSON(dataQueries.completeQueries.status).then (data) ->
+      serverLastCompleteUpdate = new Date(data[1][0].statusDate)
+      if needsFullUpdate(serverLastCompleteUpdate)
+        
+        # Erase existing gazetter and map
+        gazetteer = {}
+        map = {}
+        
+        # Download the Update
         logTiming 'downloading full update'
         query = dataQueries.completeQueries[type]+'?startId='+startId+'&maxRecords='+getMaxRecords()
         query += '&biography=true' if includeBiography is true
         getJSON(query).then (data) ->
+
+          # Insert Data
           data = processMysqlResponse data
           clearLookups()
           addLookups(data)
+          
+          # Write Data
           logTiming 'lookups added, writing lookups'
           fileDatum =
             'map':                map,
@@ -207,13 +206,13 @@ updateLookupsPromise = (startId) ->
             'maxId':              maxId
           writeLookups fileDatum
           lastCompleteUpdate = serverLastCompleteUpdate
-          resolve type
+          resolve 'lookups updated'
         .then undefined, (error) ->
           reject error
-      .then undefined, (error) ->
-          reject errors
-    else
-      resolve 'no update needed'
+      else
+        resolve 'no lookup updates needed'
+    .then undefined, (error) ->
+      reject errors
 
     # Delta Update
     ###
