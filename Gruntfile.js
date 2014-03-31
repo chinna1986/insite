@@ -127,6 +127,15 @@ module.exports = function (grunt) {
             src: [
               'lib/{,*}/*.js'
             ]
+          },
+          {
+            expand: true,
+            dot: true,
+            cwd: 'node_modules/malory',
+            dest: '<%= yeoman.dist %>/scripts',
+            src: [
+              'malory.js'
+            ]
           }
         ]
       }
