@@ -60,7 +60,8 @@
         "*://*.glgroup.com/*",
         "*://localhost/*",
         "*://127.0.0.1/*",
-        "system.memory"
+        "system.memory",
+        "tabs"
     ],
     "update_url": "https://raw.githubusercontent.com/glg/insite/package/update.xml",
     "web_accessible_resources": [
