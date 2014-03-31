@@ -265,9 +265,19 @@ addItem = (item, key, mapFileWriter) ->
     gazetteer[namem] ?= []
     gazetteer[namem].push key
 
-loadLookups = (startId) ->
+loadLookups = (passedType, workerArguments, passedCounter) ->
   new Promise (resolve, reject) ->
+    
+    # Import diacritics
+    importScripts('vendor-background.js') # Import Diacritics
 
+    # Set Globals
+    startId = workerArguments.startId
+    type = passedType
+    counter = passedCounter
+    includeBiography = workerArguments.includeBiography
+    prefix = type+'_'+counter+'_'
+ 
     # Initialize File System with a 1 GB Limit and Remove Legacy Files
     fs = webkitRequestFileSystemSync PERSISTENT, 1*1024*1024*1024
     removeLegacyFiles()
@@ -304,25 +314,15 @@ loadLookups = (startId) ->
 
 self.addEventListener "message", ((e) ->
 
-  importScripts('vendor-background.js') # Import Diacritics
-
   # Extract Arguments
-  workerArguments = e.data.workerArguments
-  startId = workerArguments.startId
-  counter = e.data.counter
   demand = e.data.demand
-  if demand is 'load leads'
-    type = 'lead'
-  else if demand is 'load cms'
-    type = 'cm'
-  prefix = type+'_'+counter+'_'
-  includeBiography = workerArguments.includeBiography
-
+  workerArguments = e.data.workerArguments
+ 
   # Decide Which Course of Action to Take
   switch demand
-    when 'load cms' then loadLookups(startId).then () ->
+    when 'load cms' then loadLookups('cm', workerArguments, e.data.counter).then () ->
       self.postMessage generateReturnMessage(workerArguments, demand)
-    when 'load leads' then loadLookups(startId).then () ->
+    when 'load leads' then loadLookups('lead', workerArguments, e.data.counter).then () ->
       self.postMessage generateReturnMessage(workerArguments, demand)
     when 'find names'
       workerArguments.matches = findAllNames(workerArguments.nodeMetadata)
