@@ -210,9 +210,11 @@ updateLookupsPromise = (startId) ->
         .then undefined, (error) ->
           reject error
       else
-        resolve 'no lookup updates needed'
+        console.log 'unable to process data download'
+        resolve 'unable to process data download'
     .then undefined, (error) ->
-      reject errors
+      console.log 'unable to get server last complete update time'
+      resolve 'unable to get server last complete update time'
 
     # Delta Update
     ###
