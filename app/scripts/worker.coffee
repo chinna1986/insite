@@ -134,6 +134,7 @@ readFile = (searchFileName, isJson) ->
 writeLookups = (fileDatum) ->
   # Write the Files Passed as an Argument to this Function
   for fileName, fileData of fileDatum
+    removed = removeFile prefix+fileName # Remove the existing file, if any
     fileEntry = fs.root.getFile prefix+fileName, {create:true}
     switch fileData.constructor.name
       when 'Object' then dataBlob = new Blob([JSON.stringify(fileData)], {type: 'text/plain'})
@@ -146,7 +147,6 @@ writeLookups = (fileDatum) ->
 removeLegacyFiles = () ->
   legacyFileNames = ['cmMap','cmGazetteer','leadMap','leadGazetteer']
   for legacyFileName in legacyFileNames
-    logTiming 'trying to remove '+legacyFileName
     removeFile legacyFileName
 
 #----------------
@@ -155,7 +155,8 @@ removeLegacyFiles = () ->
 checkStaleness = (data) ->
   new Promise (resolve, reject) ->
     serverLastCompleteUpdate = new Date(data[1][0].statusDate)
-    if lastCompleteUpdate is null or (lastCompleteUpdate - serverLastCompleteUpdate) isnt 0
+    # Update if we have never done a complete update before, if we have zero records, or if the data is not stale
+    if lastCompleteUpdate is null or Object.keys(map).length is 0 or (lastCompleteUpdate - serverLastCompleteUpdate) isnt 0
       gazetteer = {}
       map = {}
       resolve(serverLastCompleteUpdate)
@@ -167,13 +168,26 @@ updateLookups = () ->
     #logTiming 'querying deltas in ' + deltaUpdateInterval/1000 + ' seconds'
     #setTimeout updateLookups, deltaUpdateInterval
 
+needsFullUpdate = () ->
+  if lastCompleteUpdate is null
+    return true
+  else if typeof lastCompleteUpdate is 'undefined'
+    return true
+  else if ((new Date) - lastCompleteUpdate) > completeUpdateInterval
+    return true
+  else if Object.keys(map).length is 0
+    return true
+  else if maxId is -1
+    return true
+  else return false
+
 updateLookupsPromise = (startId) ->
   new Promise (resolve, reject) ->
     logTiming 'lastUpdate '+lastUpdate
     logTiming 'lastCompleteUpdate '+lastCompleteUpdate
 
     # Full Update
-    if lastCompleteUpdate is null or (typeof lastCompleteUpdate is 'undefined') or ((new Date) - lastCompleteUpdate) > completeUpdateInterval
+    if needsFullUpdate()
       getJSON(dataQueries.completeQueries.status)
       .then checkStaleness
       .then (serverLastCompleteUpdate) ->
