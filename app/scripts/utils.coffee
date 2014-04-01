@@ -56,26 +56,32 @@ getDisabledSites = new Promise (resolve, reject) ->
   getStorageSyncPromise('disabledSites').then (result) ->
     try
       if result.disabledSites?
+        console.log "disabled sites: " + result.disabledSites
         result = JSON.parse(result.disabledSites)
         resolve result
       else
+        console.log "disabled sites: "
         resolve {}
     catch e
+      console.log "disabled sites: "
       resolve {}
 
 # Get the domain of the active tab from Chrome
 getCurrentUrl = new Promise (resolve, reject) ->
     chrome.tabs.query { currentWindow: true, active: true }, (tabs) ->
       try
-        currentUrl = tabs[0].url
-        currentUrl = currentUrl.slice currentUrl.indexOf('//')+2
-        currentUrl = currentUrl.slice 0,currentUrl.indexOf('/')
+        currentUrl = cleanUrl(tabs[0].url)
         resolve currentUrl
       catch e
         reject e
-        
+cleanUrl = (currentUrl) ->
+  currentUrl = currentUrl.slice currentUrl.indexOf('//')+2
+  currentUrl = currentUrl.slice 0,currentUrl.indexOf('/')
+  return currentUrl
+
 # Grey out the icon or restore to normal
 setIcon = (enabled) ->
+  enabled = true if typeof enabled is 'undefined'
   iconName = 'icon-' + if enabled then '' else 'bw-'
   iconDict =
     '16': "images/#{iconName}16.png"
