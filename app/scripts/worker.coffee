@@ -386,7 +386,7 @@ findNames = (tags, words) ->
     words.shift()
     tags.shift()
   if matchingCmGroups.length > 0
-    results = {'text':matchingNodeText,'matchingCmGroups':matchingCmGroups}
+    results = {'nameString':matchingNodeText,'matchingCmGroups':matchingCmGroups}
 
 recognizePattern = (tags, words, filter) ->
   if words.length >= filter.trailingSpaces.length

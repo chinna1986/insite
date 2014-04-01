@@ -75,20 +75,17 @@ getOpenConsults = () ->
     (response) -> openConsults = response
   )
 
-coalesceMatches = (responses) ->
+coalesceMatches = (responses, nodeMetadata) ->
   coalescedMatchingNodes = {}
   for response in responses
     matchingNodes = response.workerArguments.matches
-    matchingNodeMetadata = response.workerArguments.nodeMetadata
     for nodeIndex, nodeData of matchingNodes
-      nodeData.textContent = matchingNodeMetadata[nodeIndex].textContent
       if !coalescedMatchingNodes[nodeIndex]?
         coalescedMatchingNodes[nodeIndex] = nodeData
       else
         coalescedMatchingCmGroup = coalescedMatchingNodes[nodeIndex].matchingCmGroups[0]
         for matchingCmGroup in nodeData.matchingCmGroups
 
-          coalescedMatchingCmGroup.textContent = matchingNodeMetadata[nodeIndex].textContent
           # Add open consults and vega user
           coalescedMatchingCmGroup.openConsults =  openConsults
           coalescedMatchingCmGroup.vegaUser =  vegaUser
@@ -129,9 +126,11 @@ coalesceMatches = (responses) ->
         coalescedMatchingCmGroup.cm.push coalescedResult.c
         coalescedMatchingCmGroup.results.splice i,1
         i--
+
+  # Add span decoration to matched names      
   for key, coalescedMatchingNode of coalescedMatchingNodes
-    for matchingNodeText, i in coalescedMatchingNode.text
-      coalescedMatchingNode.text[i] = coalescedMatchingNode.textContent.replace matchingNodeText, decorateFlyoutControl(matchingNodeText)
+    for matchingNodeText, i in coalescedMatchingNode.nameString
+      coalescedMatchingNode.nameString[i] = nodeMetadata[key].textContent.replace matchingNodeText, decorateFlyoutControl(matchingNodeText)
 
   coalescedMatchingNodes
 
@@ -148,7 +147,7 @@ chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
       nodeMetadata = message.nodeMetadata
 
       workerManager.demand('find names',{'nodeMetadata':nodeMetadata}).then (responses) ->
-        matches = coalesceMatches responses
+        matches = coalesceMatches responses, nodeMetadata
         sendResponse matches
     else
       sendResponse null

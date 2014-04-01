@@ -184,7 +184,7 @@ processData = (nodes, nodeMetadata) ->
 
       parentNode = nodes[nodeIndex].parentNode
       newNode = document.createElement 'span'
-      newNode.innerHTML = nodeMatch.text
+      newNode.innerHTML = nodeMatch.nameString
       parentNode.replaceChild newNode, nodes[nodeIndex]
 
       icons = parentNode.querySelectorAll('.glg-glyph-list')
