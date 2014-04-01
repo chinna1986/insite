@@ -144,14 +144,8 @@ chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
       _gaq.push(message.message)
       sendResponse {}
     when "search-new"
-      nodeContentData = []
-      nodeWorkerData = []
-      for node in message.nodeMetadata
-        nodeContentData.push(node['content'])
-        nodeWorkerData.push(node['worker'])
-
-      workerManager.demand('find names',{'nodeMetadata':nodeWorkerData}).then (responses) ->
-        matches = coalesceMatches responses, nodeContentData
+      workerManager.demand('find names',{'nodeMetadata':message.nodeWorkerData}).then (responses) ->
+        matches = coalesceMatches responses, message.nodeContentData
         sendResponse matches
     else
       sendResponse null

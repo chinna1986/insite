@@ -167,18 +167,20 @@ getNodes = (rootNode) ->
   ), false
   
   nodes = []
-  nodeMetadata = []
+  nodeContentData = []
+  nodeWorkerData = []
   while walker.nextNode()
     node = walker.currentNode
     text = node.textContent
     words = rita.RiTa.tokenize(text ? '')
     tags = rita.RiTa.getPosTags(words ? [])
-    nodeMetadata.push {'worker':{'tags':tags, 'words':words, 'skip':1},'content':{'textContent':text}}
+    nodeContentData.push {'textContent':text}
+    nodeWorkerData.push {'tags':tags, 'words':words, 'skip':1}
     nodes.push node
-  results = {'nodes':nodes, 'nodeMetadata':nodeMetadata}
+  results = {'nodes':nodes, 'nodeContentData':nodeContentData, 'nodeWorkerData':nodeWorkerData}
 
-processData = (nodes, nodeMetadata) ->
-  chrome.runtime.sendMessage {'method':'search-new', 'nodeMetadata':nodeMetadata}, (allMatches) ->
+processData = (nodes, nodeContentData, nodeWorkerData) ->
+  chrome.runtime.sendMessage {'method':'search-new', 'nodeContentData':nodeContentData, 'nodeWorkerData':nodeWorkerData}, (allMatches) ->
     # Append, quickly
     for nodeIndex, nodeMatch of allMatches
 
@@ -205,8 +207,7 @@ toggleExtension = (enabled) ->
     if enabled
       results = getNodes(document.body)
       nodes = results.nodes
-      nodeMetadata = results.nodeMetadata
-      processData(nodes,nodeMetadata)
+      processData(nodes, results.nodeContentData, results.nodeWorkerData)
 
     #if we're disabled, remove all flyouts
     else
@@ -227,16 +228,18 @@ chrome.storage.onChanged.addListener (changes, namespace) ->
 #listen for pageload
 observer = new MutationObserver (mutations) ->
   nodes = []
-  nodeMetadata = []
+  nodeContentData = []
+  nodeWorkerData = []
   for mutation in mutations
     if mutation.addedNodes.length > 0
       for addedNode in mutation.addedNodes
         if addedNode?.innerHTML?.search('glggotnames-flyout-control') < 0
           results = getNodes(addedNode)
           nodes = nodes.concat(results.nodes)
-          nodeMetadata = nodeMetadata.concat(results.nodeMetadata)
+          nodeContentData = nodeContentData.concat(results.nodeContentData)
+          nodeWorkerData = nodeWorkerData.concat(results.nodeWorkerData)
   if nodes.length > 0
-    processData(nodes,nodeMetadata)
+    processData(nodes, nodeContentData, nodeWorkerData)
  
 target = document
 config = { subtree: true, childList: true, characterData: true }
