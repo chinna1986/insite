@@ -79,18 +79,19 @@ coalesceMatches = (responses) ->
   coalescedMatchingNodes = {}
   for response in responses
     matchingNodes = response.workerArguments.matches
+    matchingNodeMetadata = response.workerArguments.nodeMetadata
     for nodeIndex, nodeData of matchingNodes
+      nodeData.textContent = matchingNodeMetadata[nodeIndex].textContent
       if !coalescedMatchingNodes[nodeIndex]?
         coalescedMatchingNodes[nodeIndex] = nodeData
       else
         coalescedMatchingCmGroup = coalescedMatchingNodes[nodeIndex].matchingCmGroups[0]
         for matchingCmGroup in nodeData.matchingCmGroups
 
+          coalescedMatchingCmGroup.textContent = matchingNodeMetadata[nodeIndex].textContent
           # Add open consults and vega user
           coalescedMatchingCmGroup.openConsults =  openConsults
           coalescedMatchingCmGroup.vegaUser =  vegaUser
-
-          # TODO: Handle text content/html
 
           # Count
           coalescedMatchingCmGroup.count += matchingCmGroup.count
@@ -128,7 +129,16 @@ coalesceMatches = (responses) ->
         coalescedMatchingCmGroup.cm.push coalescedResult.c
         coalescedMatchingCmGroup.results.splice i,1
         i--
+  # TODO: Handle text content/html
+  for key, coalescedMatchingNode of coalescedMatchingNodes
+    for matchingNodeText, i in coalescedMatchingNode.text
+      #get the nodeData text and replace with textItem
+      coalescedMatchingNode.text[i] = coalescedMatchingNode.textContent.replace matchingNodeText, decorateFlyoutControl(matchingNodeText)
+
   coalescedMatchingNodes
+
+decorateFlyoutControl = (text) ->
+  "<span class='glggotnames-flyout-control' style='background-color:rgba(255,223,120,0.3);'>"+text+"&nbsp;<span class='glg-glyph-list' style='border: solid 1px; border-radius: 0.4em; font-size: .8em; padding: .1em 0.2em;'></span></span>"
 
 chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
   response = null

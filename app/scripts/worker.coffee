@@ -385,11 +385,8 @@ findNames = (tags, words, textContent) ->
           break
     words.shift()
     tags.shift()
-  # Return Updated Text
   if matchingCmGroups.length > 0
-    for text in matchingNodeText
-      textContent = textContent.replace text, decorateFlyoutControl(text)
-    results = {'text':textContent,'matchingCmGroups':matchingCmGroups}
+    results = {'text':matchingNodeText,'matchingCmGroups':matchingCmGroups}
 
 recognizePattern = (tags, words, filter) ->
   if words.length >= filter.trailingSpaces.length
@@ -427,9 +424,6 @@ generatePresentationString = (words, filter) ->
     if trailingSpaceEntry == true
       candidateString += ' '
   candidateString
-
-decorateFlyoutControl = (text) ->
-  "<span class='glggotnames-flyout-control' style='background-color:rgba(255,223,120,0.3);'>"+text+"&nbsp;<span class='glg-glyph-list' style='border: solid 1px; border-radius: 0.4em; font-size: .8em; padding: .1em 0.2em;'></span></span>"
 
 # Define Filters
 filters = [
