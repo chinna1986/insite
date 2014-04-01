@@ -1,13 +1,13 @@
 'use strict'
-toggleText = (enabled) ->
+toggleText = (disabled) ->
   blockSettingsIcon = document.body.querySelector '#blockSettingsIcon'
   blockSettingsText = document.body.querySelector '#blockSettingsText'
-  if enabled
-    blockSettingsIcon.innerHTML = ''
-    blockSettingsText.innerHTML = 'Enabled'
-  else
+  if disabled
     blockSettingsIcon.innerHTML = ''
     blockSettingsText.innerHTML = 'Disabled'
+  else
+    blockSettingsIcon.innerHTML = ''
+    blockSettingsText.innerHTML = 'Enabled'
 
 enabledListener = () ->
 

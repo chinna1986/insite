@@ -80,9 +80,9 @@ cleanUrl = (currentUrl) ->
   return currentUrl
 
 # Grey out the icon or restore to normal
-setIcon = (enabled) ->
-  enabled = true if typeof enabled is 'undefined'
-  iconName = 'icon-' + if enabled then '' else 'bw-'
+setIcon = (disabled) ->
+  disabled = true if typeof disabled is 'undefined'
+  iconName = 'icon-' + if disabled then 'bw-' else ''
   iconDict =
     '16': "images/#{iconName}16.png"
     '19': "images/#{iconName}19.png"
