@@ -129,10 +129,8 @@ coalesceMatches = (responses) ->
         coalescedMatchingCmGroup.cm.push coalescedResult.c
         coalescedMatchingCmGroup.results.splice i,1
         i--
-  # TODO: Handle text content/html
   for key, coalescedMatchingNode of coalescedMatchingNodes
     for matchingNodeText, i in coalescedMatchingNode.text
-      #get the nodeData text and replace with textItem
       coalescedMatchingNode.text[i] = coalescedMatchingNode.textContent.replace matchingNodeText, decorateFlyoutControl(matchingNodeText)
 
   coalescedMatchingNodes
