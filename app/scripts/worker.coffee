@@ -363,12 +363,12 @@ getResults = (matchingIds) ->
 findAllNames = (nodeMetadata) ->
   matches = {}
   for row, nodeIndex in nodeMetadata
-    match = findNames(row.tags, row.words, row.textContent)
+    match = findNames(row.tags, row.words)
     if match?
       matches[nodeIndex] = match
   matches
 
-findNames = (tags, words, textContent) ->
+findNames = (tags, words) ->
   matchingNodeText = []
   matchingCmGroups = []
   while words.length > 0
