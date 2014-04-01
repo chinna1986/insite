@@ -50,7 +50,48 @@ getStorageSyncPromise = (key...) ->
         resolve items
       else
         reject "no values found in sync storage for #{key.join(',')}"
+
+# Get the disabledSits list and set the browserAction text
+getDisabledSites = new Promise (resolve, reject) ->
+  getStorageSyncPromise('disabledSites').then (result) ->
+    try
+      if result.disabledSites?
+        result = JSON.parse(result.disabledSites)
+        resolve result
+      else
+        resolve {}
+    catch e
+      resolve {}
+
+# Get the domain of the active tab from Chrome
+getCurrentUrl = new Promise (resolve, reject) ->
+    chrome.tabs.query { currentWindow: true, active: true }, (tabs) ->
+      try
+        currentUrl = tabs[0].url
+        currentUrl = currentUrl.slice currentUrl.indexOf('//')+2
+        currentUrl = currentUrl.slice 0,currentUrl.indexOf('/')
+        resolve currentUrl
+      catch e
+        reject e
         
+# Grey out the icon or restore to normal
+setIcon = (enabled) ->
+  iconName = 'icon-' + if enabled then '' else 'bw-'
+  iconDict =
+    '16': "images/#{iconName}16.png"
+    '19': "images/#{iconName}19.png"
+    '38': "images/#{iconName}38.png"
+    '128': "images/#{iconName}128.png"
+  chrome.browserAction.setIcon path:"images/#{iconName}38.png"
+
+toggleDisabledSites = (disabledSites, currentUrl) ->
+  disabledSites[currentUrl] = if disabledSites[currentUrl] is false then true else false;
+  setStorageSyncPromise({'disabledSites':JSON.stringify(disabledSites)}).then (result) ->
+    setIcon disabledSites[currentUrl]
+    toggleText disabledSites[currentUrl]
+    _gaq.push(['_trackEvent', event.target.id, 'clicked', 'enabled', enabled])
+
+
 hash = (name) ->
   name
 

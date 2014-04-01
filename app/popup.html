@@ -37,8 +37,29 @@
         color: white;
       }
     
+      .content {
+        padding: .5em .5em .5em .5em;
+      }
+    
       #got-names-enabled {
         margin-right:0.5em;
+      }
+      
+      #blockSettingsIcon {
+        font-size: 1.2em;
+      }
+    
+      a#blockSettings {
+        text-decoration: none;
+        color: black;
+      }
+
+      #blockSettingsIcon, #blockSettingsStatus {
+        color: green;
+      }
+    
+      #blockSettingsIcon:hover, #blockSettingsStatus:hover {
+        text-decoration: underline;
       }
     </style>
     <script src='scripts/properties.js'></script>
@@ -53,10 +74,15 @@
           <a href="mailto:GLGSearchDev@glgroup.com?subject=GLGInsite Feedback&body=">Contact Us</a>
         </div>
       </div>
-      <p>
-        <input id='got-names-enabled' type='checkbox'/>
-        <span>Enabled</span>
-      </p>
-      <p id='blockSettings'></p>
+      <div class='content'>
+        <a id="blockSettings" href="#">
+          <span id="blockSettingsStatus">
+            <span id="blockSettingsIcon">&#215</span>
+            <span id="blockSettingsText">Enabled</span>
+          </span>
+          </span>
+        </a>
+        <span> on this site</span>
+      </div>
     </body>
 </html>

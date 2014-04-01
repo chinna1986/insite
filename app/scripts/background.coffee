@@ -1,4 +1,10 @@
 'use strict'
+chrome.tabs.onActivated.addListener (tabId, windowId) ->
+  #chrome.tabs.get tabId, (tab) ->
+  Promise.all([getDisabledSites,getCurrentUrl]).then (results) ->
+    disabledSites = results[0]
+    currentUrl = results[1]
+    toggleText disabledSites[currentUrl]
 
 logTiming = (message) ->
   d = new Date()
