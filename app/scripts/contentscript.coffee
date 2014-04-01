@@ -173,7 +173,7 @@ getNodes = (rootNode) ->
     text = node.textContent
     words = rita.RiTa.tokenize(text ? '')
     tags = rita.RiTa.getPosTags(words ? [])
-    nodeMetadata.push {'tags':tags, 'words':words, 'textContent':text, 'skip':1}
+    nodeMetadata.push {'worker':{'tags':tags, 'words':words, 'skip':1},'content':{'textContent':text}}
     nodes.push node
   results = {'nodes':nodes, 'nodeMetadata':nodeMetadata}
 

@@ -18,6 +18,9 @@ openConsults = []
 vegaUser = {}
 rePunctuation = /[?:!.,;]*$/g
 
+decorateFlyoutControl = (text) ->
+  "<span class='glggotnames-flyout-control' style='background-color:rgba(255,223,120,0.3);'>"+text+"&nbsp;<span class='glg-glyph-list' style='border: solid 1px; border-radius: 0.4em; font-size: .8em; padding: .1em 0.2em;'></span></span>"
+
 loadLookups = (options) ->
 
   workerArguments =
@@ -134,9 +137,6 @@ coalesceMatches = (responses, nodeMetadata) ->
 
   coalescedMatchingNodes
 
-decorateFlyoutControl = (text) ->
-  "<span class='glggotnames-flyout-control' style='background-color:rgba(255,223,120,0.3);'>"+text+"&nbsp;<span class='glg-glyph-list' style='border: solid 1px; border-radius: 0.4em; font-size: .8em; padding: .1em 0.2em;'></span></span>"
-
 chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
   response = null
   switch message.method
@@ -144,10 +144,14 @@ chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
       _gaq.push(message.message)
       sendResponse {}
     when "search-new"
-      nodeMetadata = message.nodeMetadata
+      nodeContentData = []
+      nodeWorkerData = []
+      for node in message.nodeMetadata
+        nodeContentData.push(node['content'])
+        nodeWorkerData.push(node['worker'])
 
-      workerManager.demand('find names',{'nodeMetadata':nodeMetadata}).then (responses) ->
-        matches = coalesceMatches responses, nodeMetadata
+      workerManager.demand('find names',{'nodeMetadata':nodeWorkerData}).then (responses) ->
+        matches = coalesceMatches responses, nodeContentData
         sendResponse matches
     else
       sendResponse null
