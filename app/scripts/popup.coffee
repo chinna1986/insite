@@ -13,11 +13,11 @@ toggleDisabledSites = () ->
   isDisabledSite().then (results) ->
     # Toggle
     isDisabled = !results.isDisabled
-    disabledSites = results.disabledSites
-    disabledSites[results.currentUrl] = isDisabled
+    userDisabledSites = results.userDisabledSites
+    userDisabledSites[results.currentUrl] = isDisabled
     
     # Update Sync Store
-    setStorageSyncPromise({'disabledSites':JSON.stringify(disabledSites)}).then (result) ->
+    setStorageSyncPromise({'userDisabledSites':JSON.stringify(userDisabledSites)}).then (result) ->
       setIcon isDisabled
       toggleText isDisabled
       _gaq.push(['_trackEvent', event.target.id, 'clicked', 'enabled', enabled])

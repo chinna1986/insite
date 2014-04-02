@@ -194,6 +194,9 @@ processData = (nodes, nodeMetadata) ->
         count++
 
 toggleExtension = (isDisabled) ->
+
+  chrome.runtime.sendMessage {method:'setIcon', message: isDisabled}, (response) ->
+
   # if we're enabled, find names and add flyouts
   if !isDisabled
     results = getNodes(document.body)
@@ -214,10 +217,10 @@ toggleExtension = (isDisabled) ->
 
 #toggle flyouts on the page when extension is enabled/disabled
 chrome.storage.onChanged.addListener (changes, namespace) ->
-  if changes['disabledSites']?
+  if changes['userDisabledSites']?
     currentUrl = cleanUrl document.location.href
-    oldValues = JSON.parse(changes.disabledSites.oldValue)
-    newValues = JSON.parse(changes.disabledSites.newValue)
+    oldValues = JSON.parse(changes.userDisabledSites.oldValue)
+    newValues = JSON.parse(changes.userDisabledSites.newValue)
 
     if newValues[currentUrl] isnt oldValues[currentUrl]
       toggleExtension newValues[currentUrl]

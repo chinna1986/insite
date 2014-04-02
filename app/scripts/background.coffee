@@ -2,13 +2,6 @@
 chrome.tabs.onActivated.addListener (activeInfo) ->
   isDisabledSite().then (results) ->
     setIcon results.isDisabled
-    
-  ###
-  chrome.tabs.get activeInfo.tabId, (tab) ->
-    currentUrl = cleanUrl(tab.url)
-    getDisabledSites().then (disabledSites) ->
-      setIcon disabledSites[currentUrl]
-  ###
 
 logTiming = (message) ->
   d = new Date()
@@ -143,6 +136,8 @@ coalesceMatches = (responses) ->
 chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
   response = null
   switch message.method
+    when "setIcon"
+      setIcon message.message
     when "pushAnalytics"
       _gaq.push(message.message)
       sendResponse {}

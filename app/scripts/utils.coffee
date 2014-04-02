@@ -52,58 +52,66 @@ getStorageSyncPromise = (key...) ->
         reject "no values found in sync storage for #{key.join(',')}"
 
 # Get the disabledSits list and set the browserAction text
-getDisabledSites = () ->
-
-  defaults =
-    'glgroup.com':     true
-    'glg.it':          true
-    'mail.google.com': true
-    'facebook.com':    true
-
+getUserDisabledSites = () ->
   new Promise (resolve, reject) ->
-    getStorageSyncPromise('disabledSites').then ((result) ->
+    getStorageSyncPromise('userDisabledSites').then ((result) ->
       try
-        if result.disabledSites?
-          disabledSites = JSON.parse(result.disabledSites)
-          for site, value of defaults
-            disabledSites[site] = value if !disabledSites[site]
-          console.log disabledSites
-          resolve disabledSites
+        if result.userDisabledSites?
+          userDisabledSites = JSON.parse(result.userDisabledSites)
+          resolve userDisabledSites
         else
-          resolve defaults
+          resolve {}
       catch e
-        resolve defaults
+        resolve {}
     ), () ->
-      resolve defaults
+      resolve {}
 
 # Get the domain of the active tab from Chrome
 getCurrentUrl = () ->
   new Promise (resolve, reject) ->
-    chrome.tabs.query { currentWindow: true, active: true }, (tabs) ->
-      try
-        currentUrl = tabs[0].url
-        resolve currentUrl
-      catch e
-        reject e
+    try
+      if chrome.tabs?
+        chrome.tabs.query { currentWindow: true, active: true }, (tabs) ->
+          currentUrl = tabs[0].url
+          resolve currentUrl
+      else
+        resolve document.location.href
+    catch e
+      reject e
 
 isDisabledSite = () ->
   new Promise (resolve, reject) ->
-    Promise.all([getDisabledSites(),getCurrentUrl()]).then (data) ->
+    Promise.all([getUserDisabledSites(),getCurrentUrl()]).then (data) ->
       try
 
         # Primary Check
         results = {}
-        results.disabledSites = data[0]
+        results.userDisabledSites = data[0]
         results.currentUrl = cleanUrl data[1]
-        results.isDisabled = if results.disabledSites[results.currentUrl] is true then true else false
+        results.isDisabled = results.userDisabledSites[results.currentUrl]
         
         # Second Level Check
-        if !results.isDisabled
-          fullDomainName = document.location.hostname.toLowerCase()
-          secondLevelDomainName = fullDomainName.split(".").slice(0,-2).join(".")
-          blacklist.indexOf(secondLevelDomainName) > -1 or blacklist.indexOf(fullDomainName) > -1
+        if typeof results.isDisabled is 'undefined'
+          defaults = [
+            'glgroup.com',
+            'glg.it',
+            'mail.google.com',
+            'facebook.com'
+          ]
+          for siteName in defaults
+            startId = data[1].indexOf('/')
+            endId = data[1].indexOf('/',startId+2)
+            fullDomainName = data[1].substr(startId+2,endId-startId-2).toLowerCase()
+            if siteName.indexOf(fullDomainName) > -1
+              results.isDisabled = true
+            else
+              secondLevelDomainName = fullDomainName.split(".").slice(-2).join('.')
+              if secondLevelDomainName.length > 0 and siteName.indexOf(secondLevelDomainName) > -1
+                results.isDisabled = true
 
+        # Return Results
         resolve results
+
       catch e
         reject e
         
