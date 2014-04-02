@@ -15,7 +15,7 @@ enabledListener = () ->
   document.removeEventListener "DOMContentLoaded", enabledListener, false
 
   # Set the popup text appropriately
-  Promise.all([getDisabledSites,getCurrentUrl]).then (results) ->
+  Promise.all([getDisabledSites(),getCurrentUrl()]).then (results) ->
     disabledSites = results[0]
     currentUrl = results[1]
     toggleText disabledSites[currentUrl]

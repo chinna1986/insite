@@ -52,28 +52,34 @@ getStorageSyncPromise = (key...) ->
         reject "no values found in sync storage for #{key.join(',')}"
 
 # Get the disabledSits list and set the browserAction text
-getDisabledSites = new Promise (resolve, reject) ->
-  getStorageSyncPromise('disabledSites').then (result) ->
-    try
-      if result.disabledSites?
-        console.log "disabled sites: " + result.disabledSites
-        result = JSON.parse(result.disabledSites)
-        resolve result
-      else
+getDisabledSites = () ->
+  new Promise (resolve, reject) ->
+    getStorageSyncPromise('disabledSites').then ((result) ->
+      try
+        if result.disabledSites?
+          console.log "disabled sites: " + result.disabledSites
+          result = JSON.parse(result.disabledSites)
+          resolve result
+        else
+          console.log "disabled sites: "
+          resolve {}
+      catch e
         console.log "disabled sites: "
         resolve {}
-    catch e
+    ), () ->
       console.log "disabled sites: "
       resolve {}
 
 # Get the domain of the active tab from Chrome
-getCurrentUrl = new Promise (resolve, reject) ->
+getCurrentUrl = () ->
+  new Promise (resolve, reject) ->
     chrome.tabs.query { currentWindow: true, active: true }, (tabs) ->
       try
         currentUrl = cleanUrl(tabs[0].url)
         resolve currentUrl
       catch e
         reject e
+
 cleanUrl = (currentUrl) ->
   currentUrl = currentUrl.slice currentUrl.indexOf('//')+2
   currentUrl = currentUrl.slice 0,currentUrl.indexOf('/')
@@ -81,7 +87,7 @@ cleanUrl = (currentUrl) ->
 
 # Grey out the icon or restore to normal
 setIcon = (disabled) ->
-  disabled = true if typeof disabled is 'undefined'
+  disabled = false if typeof disabled is 'undefined'
   iconName = 'icon-' + if disabled then 'bw-' else ''
   iconDict =
     '16': "images/#{iconName}16.png"
@@ -91,7 +97,10 @@ setIcon = (disabled) ->
   chrome.browserAction.setIcon path:"images/#{iconName}38.png"
 
 toggleDisabledSites = (disabledSites, currentUrl) ->
-  disabledSites[currentUrl] = if disabledSites[currentUrl] is false then true else false;
+  if !disabledSites[currentUrl]? or disabledSites[currentUrl] is false
+    disabledSites[currentUrl] =  true
+  else
+    disabledSites[currentUrl] =  false
   setStorageSyncPromise({'disabledSites':JSON.stringify(disabledSites)}).then (result) ->
     setIcon disabledSites[currentUrl]
     toggleText disabledSites[currentUrl]
