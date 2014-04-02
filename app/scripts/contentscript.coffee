@@ -193,36 +193,34 @@ processData = (nodes, nodeMetadata) ->
         bindFlyout icon, nodeMatch.matchingCmGroups[count]
         count++
 
-blacklist = ['glgroup.com','glg.it','mail.google.com','facebook.com']
-isBlacklisted = () ->
-  fullDomainName = document.location.hostname.toLowerCase()
-  secondLevelDomainName = fullDomainName.split(".").slice(0,-2).join(".")
-  blacklist.indexOf(secondLevelDomainName) > -1 or blacklist.indexOf(fullDomainName) > -1
+toggleExtension = (isDisabled) ->
+  # if we're enabled, find names and add flyouts
+  if !isDisabled
+    results = getNodes(document.body)
+    nodes = results.nodes
+    nodeMetadata = results.nodeMetadata
+    processData(nodes,nodeMetadata)
 
-toggleExtension = (enabled) ->
-  unless isBlacklisted(document.location.hostname)
-    # if we're enabled, find names and add flyouts
-    if enabled
-      results = getNodes(document.body)
-      nodes = results.nodes
-      nodeMetadata = results.nodeMetadata
-      processData(nodes,nodeMetadata)
-
-    #if we're disabled, remove all flyouts
-    else
-      #replace highlighted names with original text
-      highlights = document.querySelectorAll '.glggotnames-flyout-control'
-      for highlight in highlights
-        text = document.createTextNode highlight.textContent.trim()
-        highlight.parentNode.replaceChild text, highlight
-      #remove flyout menus
-      for flyout in document.querySelectorAll '.glggotnames-flyout-menu'
-        flyout.parentNode.removeChild(flyout)
+  #if we're disabled, remove all flyouts
+  else
+    #replace highlighted names with original text
+    highlights = document.querySelectorAll '.glggotnames-flyout-control'
+    for highlight in highlights
+      text = document.createTextNode highlight.textContent.trim()
+      highlight.parentNode.replaceChild text, highlight
+    #remove flyout menus
+    for flyout in document.querySelectorAll '.glggotnames-flyout-menu'
+      flyout.parentNode.removeChild(flyout)
 
 #toggle flyouts on the page when extension is enabled/disabled
 chrome.storage.onChanged.addListener (changes, namespace) ->
-  if changes['enabled']?
-    toggleExtension changes['enabled'].newValue
+  if changes['disabledSites']?
+    currentUrl = cleanUrl document.location.href
+    oldValues = JSON.parse(changes.disabledSites.oldValue)
+    newValues = JSON.parse(changes.disabledSites.newValue)
+
+    if newValues[currentUrl] isnt oldValues[currentUrl]
+      toggleExtension newValues[currentUrl]
 
 #listen for pageload
 observer = new MutationObserver (mutations) ->
@@ -244,11 +242,8 @@ observer.observe(target, config)
 
 start = () ->
   if document.readyState == 'complete'
-    getStorageSyncPromise('enabled').then ((result) ->
-      enabled = result.enabled ? true
-      toggleExtension enabled
-    ), (result) ->
-      toggleExtension true
+    isDisabledSite().then (results) ->
+      toggleExtension results.isDisabled
 
 #listen for pageload
 document.onreadystatechange = start

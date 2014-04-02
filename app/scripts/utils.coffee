@@ -53,33 +53,60 @@ getStorageSyncPromise = (key...) ->
 
 # Get the disabledSits list and set the browserAction text
 getDisabledSites = () ->
+
+  defaults =
+    'glgroup.com':     true
+    'glg.it':          true
+    'mail.google.com': true
+    'facebook.com':    true
+
   new Promise (resolve, reject) ->
     getStorageSyncPromise('disabledSites').then ((result) ->
       try
         if result.disabledSites?
-          console.log "disabled sites: " + result.disabledSites
-          result = JSON.parse(result.disabledSites)
-          resolve result
+          disabledSites = JSON.parse(result.disabledSites)
+          for site, value of defaults
+            disabledSites[site] = value if !disabledSites[site]
+          console.log disabledSites
+          resolve disabledSites
         else
-          console.log "disabled sites: "
-          resolve {}
+          resolve defaults
       catch e
-        console.log "disabled sites: "
-        resolve {}
+        resolve defaults
     ), () ->
-      console.log "disabled sites: "
-      resolve {}
+      resolve defaults
 
 # Get the domain of the active tab from Chrome
 getCurrentUrl = () ->
   new Promise (resolve, reject) ->
     chrome.tabs.query { currentWindow: true, active: true }, (tabs) ->
       try
-        currentUrl = cleanUrl(tabs[0].url)
+        currentUrl = tabs[0].url
         resolve currentUrl
       catch e
         reject e
 
+isDisabledSite = () ->
+  new Promise (resolve, reject) ->
+    Promise.all([getDisabledSites(),getCurrentUrl()]).then (data) ->
+      try
+
+        # Primary Check
+        results = {}
+        results.disabledSites = data[0]
+        results.currentUrl = cleanUrl data[1]
+        results.isDisabled = if results.disabledSites[results.currentUrl] is true then true else false
+        
+        # Second Level Check
+        if !results.isDisabled
+          fullDomainName = document.location.hostname.toLowerCase()
+          secondLevelDomainName = fullDomainName.split(".").slice(0,-2).join(".")
+          blacklist.indexOf(secondLevelDomainName) > -1 or blacklist.indexOf(fullDomainName) > -1
+
+        resolve results
+      catch e
+        reject e
+        
 cleanUrl = (currentUrl) ->
   currentUrl = currentUrl.slice currentUrl.indexOf('//')+2
   currentUrl = currentUrl.slice 0,currentUrl.indexOf('/')
@@ -96,15 +123,7 @@ setIcon = (disabled) ->
     '128': "images/#{iconName}128.png"
   chrome.browserAction.setIcon path:"images/#{iconName}38.png"
 
-toggleDisabledSites = (disabledSites, currentUrl) ->
-  if !disabledSites[currentUrl]? or disabledSites[currentUrl] is false
-    disabledSites[currentUrl] =  true
-  else
-    disabledSites[currentUrl] =  false
-  setStorageSyncPromise({'disabledSites':JSON.stringify(disabledSites)}).then (result) ->
-    setIcon disabledSites[currentUrl]
-    toggleText disabledSites[currentUrl]
-    _gaq.push(['_trackEvent', event.target.id, 'clicked', 'enabled', enabled])
+
 
 
 hash = (name) ->

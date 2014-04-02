@@ -1,9 +1,14 @@
 'use strict'
 chrome.tabs.onActivated.addListener (activeInfo) ->
+  isDisabledSite().then (results) ->
+    setIcon results.isDisabled
+    
+  ###
   chrome.tabs.get activeInfo.tabId, (tab) ->
     currentUrl = cleanUrl(tab.url)
     getDisabledSites().then (disabledSites) ->
       setIcon disabledSites[currentUrl]
+  ###
 
 logTiming = (message) ->
   d = new Date()
