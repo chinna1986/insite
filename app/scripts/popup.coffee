@@ -3,11 +3,15 @@ toggleText = (isDisabled) ->
   blockSettingsIcon = document.body.querySelector '#blockSettingsIcon'
   blockSettingsText = document.body.querySelector '#blockSettingsText'
   if isDisabled
-    blockSettingsIcon.innerHTML = ''
+    blockSettingsIcon.innerHTML = '\u00D7'
+    blockSettingsIcon.style.color = 'red'
     blockSettingsText.innerHTML = 'Disabled'
+    blockSettingsText.style.color = 'red'
   else
-    blockSettingsIcon.innerHTML = ''
+    blockSettingsIcon.innerHTML = '\u2713'
+    blockSettingsIcon.style.color = 'green'
     blockSettingsText.innerHTML = 'Enabled'
+    blockSettingsText.style.color = 'green'
 
 toggleDisabledSites = () ->
   isDisabledSite().then (results) ->
@@ -15,7 +19,7 @@ toggleDisabledSites = () ->
     isDisabled = !results.isDisabled
     userDisabledSites = results.userDisabledSites
     userDisabledSites[results.currentUrl] = isDisabled
-    
+
     # Update Sync Store
     setStorageSyncPromise({'userDisabledSites':JSON.stringify(userDisabledSites)}).then (result) ->
       setIcon isDisabled
@@ -30,11 +34,11 @@ enabledListener = () ->
   # Set the popup text appropriately
   isDisabledSite().then (results) ->
     toggleText results.isDisabled
-    
+
     # Listen for a click on the blockSettings link
     blockSettingsLink = document.body.querySelector '#blockSettings'
     blockSettingsLink.addEventListener 'click', (event) ->
       toggleDisabledSites()
-      
+
 # Wait to run all code until the browserAction page has loaded
 document.addEventListener "DOMContentLoaded", (enabledListener), false
