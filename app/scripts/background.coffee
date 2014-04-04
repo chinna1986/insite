@@ -106,12 +106,19 @@ coalesceMatches = (responses, nodeMetadata) ->
               # Count
               coalescedMatchingCmGroup.count += matchingCmGroup.count
 
-              # More Link
+              # Excess CMs
               if matchingCmGroup.cm
+                if !coalescedMatchingCmGroup.cm
+                  coalescedMatchingCmGroup.cm = []
                 for cmId in matchingCmGroup.cm
-                  if !coalescedMatchingCmGroup.cm
-                    coalescedMatchingCmGroup.cm = []
                   coalescedMatchingCmGroup.cm.push cmId
+
+              # Excess Leads
+              if matchingCmGroup.lead
+                if !coalescedMatchingCmGroup.lead
+                  coalescedMatchingCmGroup.lead = []
+                for leadId in matchingCmGroup.lead
+                  coalescedMatchingCmGroup.lead.push leadId
 
               # Merge Results
               for key, result of matchingCmGroup.results
@@ -125,6 +132,10 @@ coalesceMatches = (responses, nodeMetadata) ->
 
   for key, coalescedMatchingNode of coalescedMatchingNodes
     for coalescedMatchingCmGroup in coalescedMatchingNode.matchingCmGroups
+
+      # Remove excess leads, for now
+      if coalescedMatchingCmGroup.lead
+        coalescedMatchingCmGroup.count = coalescedMatchingCmGroup.count - coalescedMatchingCmGroup.lead.length
 
       # Delete Displayed Leads if We Have More Than 5 Results
       if coalescedMatchingCmGroup.results.length > 5
