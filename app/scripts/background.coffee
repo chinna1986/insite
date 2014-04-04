@@ -21,6 +21,9 @@ openConsults = []
 vegaUser = {}
 rePunctuation = /[?:!.,;]*$/g
 
+decorateFlyoutControl = (text) ->
+  "<span class='glggotnames-flyout-control' style='background-color:rgba(255,223,120,0.3);'>"+text+"&nbsp;<span class='glg-glyph-list' style='border: solid 1px; border-radius: 0.4em; font-size: .8em; padding: .1em 0.2em;'></span></span>"
+
 loadLookups = (options) ->
 
   workerArguments =
@@ -78,7 +81,7 @@ getOpenConsults = () ->
     (response) -> openConsults = response
   )
 
-coalesceMatches = (responses) ->
+coalesceMatches = (responses, nodeMetadata) ->
   coalescedMatchingNodes = {}
   for response in responses
     matchingNodes = response.workerArguments.matches
@@ -92,8 +95,6 @@ coalesceMatches = (responses) ->
           # Add open consults and vega user
           coalescedMatchingCmGroup.openConsults =  openConsults
           coalescedMatchingCmGroup.vegaUser =  vegaUser
-
-          # TODO: Handle text content/html
 
           # Count
           coalescedMatchingCmGroup.count += matchingCmGroup.count
@@ -131,6 +132,12 @@ coalesceMatches = (responses) ->
         coalescedMatchingCmGroup.cm.push coalescedResult.c
         coalescedMatchingCmGroup.results.splice i,1
         i--
+
+  # Add span decoration to matched names      
+  for key, coalescedMatchingNode of coalescedMatchingNodes
+    for matchingNodeText, i in coalescedMatchingNode.nameString
+      coalescedMatchingNode.nameString[i] = nodeMetadata[key].textContent.replace matchingNodeText, decorateFlyoutControl(matchingNodeText)
+
   coalescedMatchingNodes
 
 chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
@@ -142,10 +149,8 @@ chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
       _gaq.push(message.message)
       sendResponse {}
     when "search-new"
-      nodeMetadata = message.nodeMetadata
-
-      workerManager.demand('find names',{'nodeMetadata':nodeMetadata}).then (responses) ->
-        matches = coalesceMatches responses
+      workerManager.demand('find names',{'nodeMetadata':message.nodeWorkerData}).then (responses) ->
+        matches = coalesceMatches responses, message.nodeContentData
         sendResponse matches
     else
       sendResponse null

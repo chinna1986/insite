@@ -3,6 +3,14 @@ trackingenabled = false unless trackingenabled?
 _gaq = _gaq or []
 _gaq.push ["_setAccount", "UA-46919569-1"]
 _gaq.push ["_trackPageview"]
+window.setInterval (->
+  _gaq.push [
+    "_trackEvent"
+    "keep-alive"
+    "keep-alive"
+  ]
+  return
+), 300000
 
 if trackingenabled
   analyticsListener = ->

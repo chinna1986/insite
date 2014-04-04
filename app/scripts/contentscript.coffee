@@ -50,7 +50,7 @@ renderFlyout = (node,matches) ->
         setClickHandler eventElement, councilMemberId, value
 
   document.body.appendChild flyoutRoot
-  
+
   flyoutRoot
 
 bindFlyout = (icon,matches) ->
@@ -73,7 +73,7 @@ bindFlyout = (icon,matches) ->
           leadId: leadId
           meetingRequestId: link.getAttribute 'href'
         getJSON({url:url,method:'POST',data:JSON.stringify(data)}).then(
-          (response) -> link.parentElement.innerHTML = "Lead Added To Consult" 
+          (response) -> link.parentElement.innerHTML = "Lead Added To Consult"
         ).then( undefined,(err) ->
           link.parentElement.innerHTML = "Could Not Add Lead To Consult"
         )
@@ -100,7 +100,7 @@ bindFlyout = (icon,matches) ->
     while l>-1
       showConsultsList(leads.item(l))
       l--
-      
+
     f.style.visibility = 'visible'
     f.style.opacity = '1'
     f.style.transitionDelay = '0s'
@@ -165,26 +165,28 @@ getNodes = (rootNode) ->
     else
       return NodeFilter.FILTER_SKIP
   ), false
-  
+
   nodes = []
-  nodeMetadata = []
+  nodeContentData = []
+  nodeWorkerData = []
   while walker.nextNode()
     node = walker.currentNode
     text = node.textContent
     words = rita.RiTa.tokenize(text ? '')
     tags = rita.RiTa.getPosTags(words ? [])
-    nodeMetadata.push {'tags':tags, 'words':words, 'textContent':text, 'skip':1}
+    nodeContentData.push {'textContent':text}
+    nodeWorkerData.push {'tags':tags, 'words':words, 'skip':1}
     nodes.push node
-  results = {'nodes':nodes, 'nodeMetadata':nodeMetadata}
+  results = {'nodes':nodes, 'nodeContentData':nodeContentData, 'nodeWorkerData':nodeWorkerData}
 
-processData = (nodes, nodeMetadata) ->
-  chrome.runtime.sendMessage {'method':'search-new', 'nodeMetadata':nodeMetadata}, (allMatches) ->
+processData = (nodes, nodeContentData, nodeWorkerData) ->
+  chrome.runtime.sendMessage {'method':'search-new', 'nodeContentData':nodeContentData, 'nodeWorkerData':nodeWorkerData}, (allMatches) ->
     # Append, quickly
     for nodeIndex, nodeMatch of allMatches
 
       parentNode = nodes[nodeIndex].parentNode
       newNode = document.createElement 'span'
-      newNode.innerHTML = nodeMatch.text
+      newNode.innerHTML = nodeMatch.nameString
       parentNode.replaceChild newNode, nodes[nodeIndex]
 
       icons = parentNode.querySelectorAll('.glg-glyph-list')
@@ -201,8 +203,7 @@ toggleExtension = (isDisabled) ->
   if !isDisabled
     results = getNodes(document.body)
     nodes = results.nodes
-    nodeMetadata = results.nodeMetadata
-    processData(nodes,nodeMetadata)
+    processData(nodes, results.nodeContentData, results.nodeWorkerData)
 
   #if we're disabled, remove all flyouts
   else
@@ -228,17 +229,19 @@ chrome.storage.onChanged.addListener (changes, namespace) ->
 #listen for pageload
 observer = new MutationObserver (mutations) ->
   nodes = []
-  nodeMetadata = []
+  nodeContentData = []
+  nodeWorkerData = []
   for mutation in mutations
     if mutation.addedNodes.length > 0
       for addedNode in mutation.addedNodes
         if addedNode?.innerHTML?.search('glggotnames-flyout-control') < 0
           results = getNodes(addedNode)
           nodes = nodes.concat(results.nodes)
-          nodeMetadata = nodeMetadata.concat(results.nodeMetadata)
+          nodeContentData = nodeContentData.concat(results.nodeContentData)
+          nodeWorkerData = nodeWorkerData.concat(results.nodeWorkerData)
   if nodes.length > 0
-    processData(nodes,nodeMetadata)
- 
+    processData(nodes, nodeContentData, nodeWorkerData)
+
 target = document
 config = { subtree: true, childList: true, characterData: true }
 observer.observe(target, config)
