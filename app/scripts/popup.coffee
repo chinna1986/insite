@@ -4,14 +4,14 @@ toggleText = (isDisabled) ->
   blockSettingsText = document.body.querySelector '#blockSettingsText'
   if isDisabled
     blockSettingsIcon.innerHTML = '\u00D7'
-    blockSettingsIcon.style.color = 'red'
+    blockSettingsIcon.style.color = '#ee2d19'
     blockSettingsText.innerHTML = 'Disabled'
-    blockSettingsText.style.color = 'red'
+    blockSettingsText.style.color = '#ee2d19'
   else
     blockSettingsIcon.innerHTML = '\u2713'
-    blockSettingsIcon.style.color = 'green'
+    blockSettingsIcon.style.color = '#269926'
     blockSettingsText.innerHTML = 'Enabled'
-    blockSettingsText.style.color = 'green'
+    blockSettingsText.style.color = '#269926'
 
 toggleDisabledSites = () ->
   isDisabledSite().then (results) ->

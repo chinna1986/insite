@@ -58,13 +58,10 @@
         text-decoration: none;
       }
 
-      #blockSettingsIcon, #blockSettingsStatus {
-        color: green;
+      #blockSettingsIcon:hover, #blockSettingsStatus:hover {
+        color: white;
       }
 
-      #blockSettingsIcon:hover, #blockSettingsStatus:hover {
-        text-decoration: underline;
-      }
     </style>
     <script src='scripts/properties.js'></script>
     <script src='scripts/tracking.js'></script>
@@ -79,13 +76,13 @@
         </div>
       </div>
       <div class='content'>
-        <a id="blockSettings" href="#">
+        <a title="Click to enable or disable" id="blockSettings" href="#">
           <span id="blockSettingsStatus">
             <span id="blockSettingsIcon">&#215</span>
             <span id="blockSettingsText">Enabled</span>
           </span>
         </a>
-        <span>&nbsp;on this site</span>
+        <span>on this site</span>
       </div>
     </body>
 </html>
