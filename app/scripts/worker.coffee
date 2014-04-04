@@ -180,11 +180,11 @@ updateLookupsPromise = (startId) ->
     getJSON(dataQueries.completeQueries.status).then (data) ->
       serverLastCompleteUpdate = new Date(data[1][0].statusDate)
       if needsFullUpdate(serverLastCompleteUpdate)
-        
+
         # Erase existing gazetter and map
         gazetteer = {}
         map = {}
-        
+
         # Download the Update
         logTiming 'downloading full update'
         query = dataQueries.completeQueries[type]+'?startId='+startId+'&maxRecords='+getMaxRecords()
@@ -195,7 +195,7 @@ updateLookupsPromise = (startId) ->
           data = processMysqlResponse data
           clearLookups()
           addLookups(data)
-          
+
           # Write Data
           logTiming 'lookups added, writing lookups'
           fileDatum =
@@ -255,7 +255,7 @@ addLookups = (data) ->
     for keyProperty in keyProperties
       if data[0][keyProperty]
         key = keyProperty
-    
+
     # Add Properties
     for item, i in data
       addItem(item, item[key])
@@ -273,7 +273,7 @@ addItem = (item, key, mapFileWriter) ->
   name = cleanName item.n
   gazetteer[name] ?= []
   gazetteer[name].push key
-  
+
   # Index First, Last, and Middle Name
   if item.m != ""
     namem = cleanName(item.n+" "+item.m)
@@ -282,7 +282,7 @@ addItem = (item, key, mapFileWriter) ->
 
 loadLookups = (passedType, workerArguments, passedCounter) ->
   new Promise (resolve, reject) ->
-    
+
     # Import diacritics
     importScripts('vendor-background.js') # Import Diacritics
 
@@ -292,7 +292,7 @@ loadLookups = (passedType, workerArguments, passedCounter) ->
     counter = passedCounter
     includeBiography = workerArguments.includeBiography
     prefix = type+'_'+counter+'_'
- 
+
     # Initialize File System with a 1 GB Limit and Remove Legacy Files
     fs = webkitRequestFileSystemSync PERSISTENT, 1*1024*1024*1024
     removeLegacyFiles()
@@ -332,7 +332,7 @@ self.addEventListener "message", ((e) ->
   # Extract Arguments
   demand = e.data.demand
   workerArguments = e.data.workerArguments
- 
+
   # Decide Which Course of Action to Take
   switch demand
     when 'load cms' then loadLookups('cm', workerArguments, e.data.counter).then () ->
@@ -393,15 +393,15 @@ findNames = (tags, words) ->
         candidateString = generateCandidateString(words, filter)
         matchingCms = getResponse candidateString
         if matchingCms.count > 0
+          matchingCms.nameString = generatePresentationString(words, filter)
           matchingCmGroups.push matchingCms
-          matchingNodeText.push generatePresentationString(words, filter)
           tags.splice 0,filter.trailingSpaces.length
           words.splice 0,filter.trailingSpaces.length
           break
     words.shift()
     tags.shift()
   if matchingCmGroups.length > 0
-    results = {'nameString':matchingNodeText,'matchingCmGroups':matchingCmGroups}
+    results = {'matchingCmGroups':matchingCmGroups}
 
 recognizePattern = (tags, words, filter) ->
   if words.length >= filter.trailingSpaces.length

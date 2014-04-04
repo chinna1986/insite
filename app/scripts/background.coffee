@@ -52,7 +52,7 @@ getVegaUserName = () ->
       if vegaCookie?
         resolve /username=glgroup(\\|%5C)(\w+)/i.exec(vegaCookie.value)[2]
       else
-        reject 'no vega user name found' 
+        reject 'no vega user name found'
     .then undefined,reject
 
 getVegaUserUrl = (userName) ->
@@ -86,57 +86,73 @@ coalesceMatches = (responses, nodeMetadata) ->
   for response in responses
     matchingNodes = response.workerArguments.matches
     for nodeIndex, nodeData of matchingNodes
+
+      # If this node index has yet to be populated, perform a direct copy
       if !coalescedMatchingNodes[nodeIndex]?
         coalescedMatchingNodes[nodeIndex] = nodeData
       else
-        coalescedMatchingCmGroup = coalescedMatchingNodes[nodeIndex].matchingCmGroups[0]
         for matchingCmGroup in nodeData.matchingCmGroups
 
-          # Add open consults and vega user
-          coalescedMatchingCmGroup.openConsults =  openConsults
-          coalescedMatchingCmGroup.vegaUser =  vegaUser
+          # Check if this match has already been populated by a previous shard
+          coalescedMatchingCmGroup = null
+          for candidateCoalescedMatchingCmGroup in coalescedMatchingNodes[nodeIndex].matchingCmGroups
+            if candidateCoalescedMatchingCmGroup.nameString is matchingCmGroup.nameString
+              coalescedMatchingCmGroup = candidateCoalescedMatchingCmGroup
 
-          # Count
-          coalescedMatchingCmGroup.count += matchingCmGroup.count
+              # Add open consults and vega user
+              coalescedMatchingCmGroup.openConsults =  openConsults
+              coalescedMatchingCmGroup.vegaUser =  vegaUser
 
-          # More Link
-          if matchingCmGroup.cm
-            for cmId in matchingCmGroup.cm
-              if !coalescedMatchingCmGroup.cm
-                coalescedMatchingCmGroup.cm = []
-              coalescedMatchingCmGroup.cm.push cmId
+              # Count
+              coalescedMatchingCmGroup.count += matchingCmGroup.count
 
-          # Merge Results
-          for key, result of matchingCmGroup.results
-            coalescedMatchingCmGroup.results.push result
+              # More Link
+              if matchingCmGroup.cm
+                for cmId in matchingCmGroup.cm
+                  if !coalescedMatchingCmGroup.cm
+                    coalescedMatchingCmGroup.cm = []
+                  coalescedMatchingCmGroup.cm.push cmId
+
+              # Merge Results
+              for key, result of matchingCmGroup.results
+                coalescedMatchingCmGroup.results.push result
+
+          # If this is a new match for a textnode
+          if coalescedMatchingCmGroup is null
+            coalescedMatchingCmGroup = matchingCmGroup
+            coalescedMatchingNodes[nodeIndex].matchingCmGroups.push coalescedMatchingCmGroup
+
 
   for key, coalescedMatchingNode of coalescedMatchingNodes
-    coalescedMatchingCmGroup = coalescedMatchingNode.matchingCmGroups[0]
-    # Delete Displayed Leads if We Have More Than 5 Results
-    if coalescedMatchingCmGroup.results.length > 5
-      i = coalescedMatchingCmGroup.results.length-1
-      while i >= 0 and coalescedMatchingCmGroup.results.length > 5
-        coalescedResult = coalescedMatchingCmGroup.results[i]
-        if coalescedResult.l?
-          coalescedMatchingCmGroup.results.count--
+    for coalescedMatchingCmGroup in coalescedMatchingNodes[nodeIndex].matchingCmGroups
+
+      # Delete Displayed Leads if We Have More Than 5 Results
+      if coalescedMatchingCmGroup.results.length > 5
+        i = coalescedMatchingCmGroup.results.length-1
+        while i >= 0 and coalescedMatchingCmGroup.results.length > 5
+          coalescedResult = coalescedMatchingCmGroup.results[i]
+          if coalescedResult.l?
+            coalescedMatchingCmGroup.results.count--
+            coalescedMatchingCmGroup.results.splice i,1
+          i--
+
+      # Shunt Displayed CMs to Mosaic Link
+      if coalescedMatchingCmGroup.results.length > 5
+        i = coalescedMatchingCmGroup.results.length-1
+        while i >= 0 and coalescedMatchingCmGroup.results.length > 5
+          coalescedResult = coalescedMatchingCmGroup.results[i]
+          if !coalescedMatchingCmGroup.cm
+            coalescedMatchingCmGroup.cm = []
+          coalescedMatchingCmGroup.cm.push coalescedResult.c
           coalescedMatchingCmGroup.results.splice i,1
-        i--
+          i--
 
-    # Shunt Displayed CMs to Mosaic Link
-    if coalescedMatchingCmGroup.results.length > 5
-      i = coalescedMatchingCmGroup.results.length-1
-      while i >= 0 and coalescedMatchingCmGroup.results.length > 5
-        coalescedResult = coalescedMatchingCmGroup.results[i]
-        if !coalescedMatchingCmGroup.cm
-          coalescedMatchingCmGroup.cm = []
-        coalescedMatchingCmGroup.cm.push coalescedResult.c
-        coalescedMatchingCmGroup.results.splice i,1
-        i--
-
-  # Add span decoration to matched names      
+  # Add span decoration to matched names
   for key, coalescedMatchingNode of coalescedMatchingNodes
-    for matchingNodeText, i in coalescedMatchingNode.nameString
-      coalescedMatchingNode.nameString[i] = nodeMetadata[key].textContent.replace matchingNodeText, decorateFlyoutControl(matchingNodeText)
+    coalescedMatchingNode.textContent = nodeMetadata[key].textContent
+    for coalescedMatchingCmGroup in coalescedMatchingNode.matchingCmGroups
+      nameString = coalescedMatchingCmGroup.nameString
+      coalescedMatchingNode.textContent = coalescedMatchingNode.textContent.replace nameString, decorateFlyoutControl(nameString)
 
   coalescedMatchingNodes
 

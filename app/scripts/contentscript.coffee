@@ -181,19 +181,22 @@ getNodes = (rootNode) ->
 
 processData = (nodes, nodeContentData, nodeWorkerData) ->
   chrome.runtime.sendMessage {'method':'search-new', 'nodeContentData':nodeContentData, 'nodeWorkerData':nodeWorkerData}, (allMatches) ->
-    # Append, quickly
-    for nodeIndex, nodeMatch of allMatches
+    # Iterate over each text node
+    for nodeIndex, nodeMatches of allMatches
 
+      # Insert the highlighting
       parentNode = nodes[nodeIndex].parentNode
       newNode = document.createElement 'span'
-      newNode.innerHTML = nodeMatch.nameString
+      newNode.innerHTML = nodeMatches.textContent
       parentNode.replaceChild newNode, nodes[nodeIndex]
 
+      # Bind a flyout to each icon
       icons = parentNode.querySelectorAll('.glg-glyph-list')
-      count = 0
       for icon in icons
-        bindFlyout icon, nodeMatch.matchingCmGroups[count]
-        count++
+        textContent = icon.parentNode.textContent
+        for matchingCmGroup in nodeMatches.matchingCmGroups
+          if textContent.indexOf(matchingCmGroup.nameString) isnt -1
+            bindFlyout icon, matchingCmGroup
 
 toggleExtension = (isDisabled) ->
 
