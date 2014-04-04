@@ -124,7 +124,7 @@ coalesceMatches = (responses, nodeMetadata) ->
 
 
   for key, coalescedMatchingNode of coalescedMatchingNodes
-    for coalescedMatchingCmGroup in coalescedMatchingNodes[nodeIndex].matchingCmGroups
+    for coalescedMatchingCmGroup in coalescedMatchingNode.matchingCmGroups
 
       # Delete Displayed Leads if We Have More Than 5 Results
       if coalescedMatchingCmGroup.results.length > 5
@@ -132,7 +132,7 @@ coalesceMatches = (responses, nodeMetadata) ->
         while i >= 0 and coalescedMatchingCmGroup.results.length > 5
           coalescedResult = coalescedMatchingCmGroup.results[i]
           if coalescedResult.l?
-            coalescedMatchingCmGroup.results.count--
+            coalescedMatchingCmGroup.count--
             coalescedMatchingCmGroup.results.splice i,1
           i--
 
