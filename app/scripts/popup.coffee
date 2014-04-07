@@ -28,6 +28,17 @@ toggleDisabledSites = () ->
 
 enabledListener = () ->
 
+  # Populate the 'View All CMs in Mosaic' Link
+  chrome.tabs.query active: true, currentWindow: true, (tabs) ->
+    tabId = tabs[0].id
+    chrome.tabs.sendMessage tabId, command: "getAllMatchingCms", (res) ->
+      blockSettingsLink = document.body.querySelector '#allMatchingCms'
+      link = "https://vega.glgroup.com/mosaic/#/pi?similarCmids="
+      for cmId of res
+        link += cmId + ","
+      link = link.slice(0, - 1)
+      blockSettingsLink.href = link
+
   # Remove the listener so this event is fired only once
   document.removeEventListener "DOMContentLoaded", enabledListener, false
 
