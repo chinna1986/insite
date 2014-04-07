@@ -1,74 +1,36 @@
-a {
-  text-decoration: none;
-  color: black;
-}
-a:hover {
-  text-decoration: underline;
-  color: black;
-}
+/* Links */
+a { text-decoration: none;
+    color: black; }
+a:hover { text-decoration: underline;
+          color: black; }
+a:visited { text-decoration: none;
+            color: black; }
+body {  font: 10pt Tahoma;
+        width: 15em;
+        margin: 0em; }
 
-a:visited {
-  text-decoration: none;
-  color: black;
-}
+/* Reset */
+p { margin: 0 0 0.6em 0; }
 
-body {
-  font-family: Tahoma;
-  font-size: 10pt;
-  width: 15em;
-  margin: 0em;
-}
+/* Content */
+.header { margin: 0em;
+          padding: .5em .5em .5em .5em;
+          font-weight: bold;
+          color: white;
+          background-color: black; }
 
-p {
-  margin: 0 0 0.6em 0;
-}
+.contact {  float: right;
+            font-size: 0.8em;}
 
-.header {
-  margin: 0em;
-  padding: .5em .5em .5em .5em;
-  font-weight: bold;
-  color: white;
-  background-color: black;
-}
+.contact > a { color: white; }
 
-.contact {
-  float: right;
-  font-size: 0.8em;
-}
+.contact > a:hover { color: white; }
 
-.contact > a {
-  color: white;
-}
+.content { padding: .5em .5em .5em .5em; }
 
-.contact > a:hover {
-  color: white;
-}
+.detail-text { font-size: 0.7em;
+               color: grey; }
 
-.content {
-  padding: .5em .5em .5em .5em;
-}
+#blockSettingsIcon { font-size: 1.2em; }
 
-.detail-text {
-  font-size: 0.7em;
-  color: grey;
-}
-#got-names-enabled {
-  margin-right:0.5em;
-}
-
-#blockSettingsIcon {
-  font-size: 1.2em;
-}
-
-#blockSettings {
-  text-decoration: none;
-  color: black;
-}
-
-#blockSettings:hover {
-  text-decoration: none;
-}
-
-#blockSettingsIcon:hover, #blockSettingsStatus:hover {
-  color: white;
-}
+#blockSettingsIcon:hover, #blockSettingsStatus:hover { color: white; }
