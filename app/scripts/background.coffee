@@ -170,6 +170,9 @@ coalesceMatches = (responses, nodeMetadata) ->
 chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
   response = null
   switch message.method
+    when "getCurrentUrl"
+      getCurrentUrl().then (currentUrl) ->
+        sendResponse currentUrl
     when "setIcon"
       setIcon message.message
     when "pushAnalytics"

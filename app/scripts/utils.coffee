@@ -75,7 +75,8 @@ getCurrentUrl = () ->
           currentUrl = tabs[0].url
           resolve currentUrl
       else
-        resolve document.location.href
+        chrome.runtime.sendMessage {method:'getCurrentUrl'}, (currentUrl) ->
+          resolve currentUrl
     catch e
       reject e
 
