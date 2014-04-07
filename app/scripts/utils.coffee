@@ -84,37 +84,44 @@ isDisabledSite = () ->
     Promise.all([getUserDisabledSites(),getCurrentUrl()]).then (data) ->
       try
 
-        # Primary Check
+        currentUrl = cleanUrl data[1]
+
+        # Check the User List of Disabled Sites
         results = {}
         results.userDisabledSites = data[0]
-        results.currentUrl = cleanUrl data[1]
+        results.currentUrl = currentUrl
         results.isDisabled = results.userDisabledSites[results.currentUrl]
-        
-        # Second Level Check
+
+
+        # Whitelist Check
         if typeof results.isDisabled is 'undefined'
-          defaults = [
+          whitelist = [
+            'email.glgroup.com'
+          ]
+
+          for site in whitelist
+            if currentUrl.indexOf(site) isnt -1
+              results.isDisabled = false
+
+        # Blacklist Check
+        if typeof results.isDisabled is 'undefined'
+          blacklist = [
             'glgroup.com',
             'glg.it',
             'mail.google.com',
             'facebook.com'
           ]
-          for siteName in defaults
-            startId = data[1].indexOf('/')
-            endId = data[1].indexOf('/',startId+2)
-            fullDomainName = data[1].substr(startId+2,endId-startId-2).toLowerCase()
-            if siteName.indexOf(fullDomainName) > -1
+
+          for site in blacklist
+            if currentUrl.indexOf(site) isnt -1
               results.isDisabled = true
-            else
-              secondLevelDomainName = fullDomainName.split(".").slice(-2).join('.')
-              if secondLevelDomainName.length > 0 and siteName.indexOf(secondLevelDomainName) > -1
-                results.isDisabled = true
 
         # Return Results
         resolve results
 
       catch e
         reject e
-        
+
 cleanUrl = (currentUrl) ->
   currentUrl = currentUrl.slice currentUrl.indexOf('//')+2
   currentUrl = currentUrl.slice 0,currentUrl.indexOf('/')
@@ -158,8 +165,8 @@ adler32 = (a, b, c, d, e, f) ->
     c = (c + f) % b
     d = (d + c) % b
   (d << 16) | c
-  
-  
+
+
 encodingMap =
   1:"!"
   2:'"'
