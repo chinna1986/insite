@@ -33,7 +33,6 @@ renderFlyout = (node,matches) ->
 
   flyoutShadow = flyoutRoot.webkitCreateShadowRoot()
   flyoutShadow.applyAuthorStyles = false
-  #flyoutShadow.resetStyleInheritance = true
 
   flyout = document.createElement 'span'
 
