@@ -32,7 +32,7 @@ enabledListener = () ->
   chrome.tabs.query active: true, currentWindow: true, (tabs) ->
     tabId = tabs[0].id
     chrome.tabs.sendMessage tabId, command: "getAllMatchingData", (res) ->
-      blockSettingsLink = document.body.querySelector '#allMatchingiData'
+      blockSettingsLink = document.body.querySelector '#allMatchingData'
       link = "https://vega.glgroup.com/mosaic/#/pi?similarCmids="
       for cmId of res
         link += cmId + ","
