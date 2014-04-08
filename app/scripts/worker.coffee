@@ -22,7 +22,7 @@ dataQueries =
     'status': baseUrl+'/gotNames/dw/getStatus.mysql.mustache'
     'cm':     baseUrl+'/cache4h/gotNames/dw/getCmAll.mysql.mustache'
     'lead':   baseUrl+'/cache4h/gotNames/dw/getLeadAll.mysql.mustache'
-    'firm':   baseUrl+'/cache4h/gotNames/dw/getCmAll.mysql.mustache'
+    'firm':   baseUrl+'/cache4h/gotNames/dw/getFirmAll.mysql.mustache'
   'deltaQueries':
     'status': baseUrl+'/gotNames/glglive/getStatus.mustache'
     'cm':     baseUrl+'/gotNames/glglive/getCmDelta.mustache'
@@ -253,7 +253,7 @@ addLookups = (data) ->
   if data.length > 0
 
     # Detect Which Key is In Use
-    keyProperties = ['l','c']
+    keyProperties = ['l','c','f']
     for keyProperty in keyProperties
       if data[0][keyProperty]
         key = keyProperty

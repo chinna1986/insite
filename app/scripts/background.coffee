@@ -12,10 +12,6 @@ escapeRe = (str) ->
   (str+'').replace(reSpecialChars, "\\$1")
 
 # Gobals
-constellation =
-  lead: []
-  cm:   []
-
 workerManager = []
 openConsults = []
 vegaUser = {}
