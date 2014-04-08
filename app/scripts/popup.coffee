@@ -36,7 +36,7 @@ enabledListener = () ->
       link = "https://vega.glgroup.com/mosaic/#/pi?similarCmids="
       for cmId of res
         link += cmId + ","
-      link = link.slice(0, - 1)
+      link = link.slice(0, -1)
       blockSettingsLink.href = link
 
   # Remove the listener so this event is fired only once
