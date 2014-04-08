@@ -1,6 +1,6 @@
 'use strict'
 
-allMatchingCms = {}
+allMatchingData = {}
 rejects = ['head','style','title','link','meta','script','object','iframe','input','select','textarea']
 
 logTiming = (message) ->
@@ -194,18 +194,18 @@ processData = (nodes, nodeContentData, nodeWorkerData) ->
       icons = parentNode.querySelectorAll('.glg-glyph-list')
       for icon in icons
         textContent = icon.parentNode.textContent
-        for matchingCmGroup in nodeMatches.matchingCmGroups
+        for matchingGroup in nodeMatches.matchingGroups
 
-          # Populate allMatchingCms
-          if matchingCmGroup.cm?
-            for cm in matchingCmGroup.cm
-              allMatchingCms[cm] = null
-          if matchingCmGroup.results?
-            for result in matchingCmGroup.results
+          # Populate allMatchingData
+          if matchingGroup.cm?
+            for cm in matchingGroup.cm
+              allMatchingData[cm] = null
+          if matchingGroup.results?
+            for result in matchingGroup.results
               if result.c?
-                allMatchingCms[result.c] = null
-          if textContent.indexOf(matchingCmGroup.nameString) isnt -1
-            bindFlyout icon, matchingCmGroup
+                allMatchingData[result.c] = null
+          if textContent.indexOf(matchingGroup.nameString) isnt -1
+            bindFlyout icon, matchingGroup
 
 toggleExtension = (isDisabled) ->
   console.log 'isDisabled: ' + isDisabled
@@ -262,8 +262,8 @@ observer.observe(target, config)
 
 start = () ->
   chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
-    if message.command is 'getAllMatchingCms'
-      sendResponse(allMatchingCms)
+    if message.command is 'getAllMatchingData'
+      sendResponse(allMatchingData)
 
   if document.readyState == 'complete'
     isDisabledSite().then (results) ->

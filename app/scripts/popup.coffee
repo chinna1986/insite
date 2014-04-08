@@ -31,8 +31,8 @@ enabledListener = () ->
   # Populate the 'View All CMs in Mosaic' Link
   chrome.tabs.query active: true, currentWindow: true, (tabs) ->
     tabId = tabs[0].id
-    chrome.tabs.sendMessage tabId, command: "getAllMatchingCms", (res) ->
-      blockSettingsLink = document.body.querySelector '#allMatchingCms'
+    chrome.tabs.sendMessage tabId, command: "getAllMatchingData", (res) ->
+      blockSettingsLink = document.body.querySelector '#allMatchingiData'
       link = "https://vega.glgroup.com/mosaic/#/pi?similarCmids="
       for cmId of res
         link += cmId + ","

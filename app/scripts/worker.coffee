@@ -22,10 +22,12 @@ dataQueries =
     'status': baseUrl+'/gotNames/dw/getStatus.mysql.mustache'
     'cm':     baseUrl+'/cache4h/gotNames/dw/getCmAll.mysql.mustache'
     'lead':   baseUrl+'/cache4h/gotNames/dw/getLeadAll.mysql.mustache'
+    'firm':   baseUrl+'/cache4h/gotNames/dw/getCmAll.mysql.mustache'
   'deltaQueries':
     'status': baseUrl+'/gotNames/glglive/getStatus.mustache'
     'cm':     baseUrl+'/gotNames/glglive/getCmDelta.mustache'
     'lead':   baseUrl+'/gotNames/glglive/getLeadDelta.mustache'
+    'firm':   baseUrl+'/gotNames/glglive/getCmDelta.mustache'
 
 #------------------
 # Utility Functions
@@ -339,6 +341,8 @@ self.addEventListener "message", ((e) ->
       self.postMessage generateReturnMessage(workerArguments, demand)
     when 'load leads' then loadLookups('lead', workerArguments, e.data.counter).then () ->
       self.postMessage generateReturnMessage(workerArguments, demand)
+    when 'load firms' then loadLookups('firm', workerArguments, e.data.counter).then () ->
+      self.postMessage generateReturnMessage(workerArguments, demand)
     when 'find names'
       workerArguments.matches = findAllNames(workerArguments.nodeMetadata)
       self.postMessage({'demand': demand, 'workerArguments': workerArguments})
@@ -385,23 +389,23 @@ findAllNames = (nodeMetadata) ->
 
 findNames = (tags, words) ->
   matchingNodeText = []
-  matchingCmGroups = []
+  matchingGroups = []
   while words.length > 0
     # Check for a Match in Each Filter
     for filter in filters
       if recognizePattern(tags, words, filter)
         candidateString = generateCandidateString(words, filter)
-        matchingCms = getResponse candidateString
-        if matchingCms.count > 0
-          matchingCms.nameString = generatePresentationString(words, filter)
-          matchingCmGroups.push matchingCms
+        matching = getResponse candidateString
+        if matching.count > 0
+          matching.nameString = generatePresentationString(words, filter)
+          matchingGroups.push matching
           tags.splice 0,filter.trailingSpaces.length
           words.splice 0,filter.trailingSpaces.length
           break
     words.shift()
     tags.shift()
-  if matchingCmGroups.length > 0
-    results = {'matchingCmGroups':matchingCmGroups}
+  if matchingGroups.length > 0
+    results = {'matchingGroups':matchingGroups}
 
 recognizePattern = (tags, words, filter) ->
   if words.length >= filter.trailingSpaces.length

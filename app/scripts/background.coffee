@@ -41,6 +41,12 @@ loadLookups = (options) ->
     budgetedWorkers: 10
     officiallyOutOfMemory: "officiallyOutOfMemory"
     workerArguments: workerArguments
+  },{
+    workerUrl: "scripts/worker.js"
+    initialDemand: "load firms"
+    budgetedWorkers: 10
+    officiallyOutOfMemory: "officiallyOutOfMemory"
+    workerArguments: workerArguments
   }]
   workerManager = new malory(workerConfig)
 
@@ -91,78 +97,78 @@ coalesceMatches = (responses, nodeMetadata) ->
       if !coalescedMatchingNodes[nodeIndex]?
         coalescedMatchingNodes[nodeIndex] = nodeData
       else
-        for matchingCmGroup in nodeData.matchingCmGroups
+        for matchingGroup in nodeData.matchingGroups
 
           # Check if this match has already been populated by a previous shard
-          coalescedMatchingCmGroup = null
-          for candidateCoalescedMatchingCmGroup in coalescedMatchingNodes[nodeIndex].matchingCmGroups
-            if candidateCoalescedMatchingCmGroup.nameString is matchingCmGroup.nameString
-              coalescedMatchingCmGroup = candidateCoalescedMatchingCmGroup
+          coalescedMatchingGroup = null
+          for candidateCoalescedMatchingGroup in coalescedMatchingNodes[nodeIndex].matchingGroups
+            if candidateCoalescedMatchingGroup.nameString is matchingGroup.nameString
+              coalescedMatchingGroup = candidateCoalescedMatchingGroup
 
               # Add open consults and vega user
-              coalescedMatchingCmGroup.openConsults =  openConsults
-              coalescedMatchingCmGroup.vegaUser =  vegaUser
+              coalescedMatchingGroup.openConsults =  openConsults
+              coalescedMatchingGroup.vegaUser =  vegaUser
 
               # Count
-              coalescedMatchingCmGroup.count += matchingCmGroup.count
+              coalescedMatchingGroup.count += matchingGroup.count
 
               # Excess CMs
-              if matchingCmGroup.cm
-                if !coalescedMatchingCmGroup.cm
-                  coalescedMatchingCmGroup.cm = []
-                for cmId in matchingCmGroup.cm
-                  coalescedMatchingCmGroup.cm.push cmId
+              if matchingGroup.cm
+                if !coalescedMatchingGroup.cm
+                  coalescedMatchingGroup.cm = []
+                for cmId in matchingGroup.cm
+                  coalescedMatchingGroup.cm.push cmId
 
               # Excess Leads
-              if matchingCmGroup.lead
-                if !coalescedMatchingCmGroup.lead
-                  coalescedMatchingCmGroup.lead = []
-                for leadId in matchingCmGroup.lead
-                  coalescedMatchingCmGroup.lead.push leadId
+              if matchingGroup.lead
+                if !coalescedMatchingGroup.lead
+                  coalescedMatchingGroup.lead = []
+                for leadId in matchingGroup.lead
+                  coalescedMatchingGroup.lead.push leadId
 
               # Merge Results
-              for key, result of matchingCmGroup.results
-                coalescedMatchingCmGroup.results.push result
+              for key, result of matchingGroup.results
+                coalescedMatchingGroup.results.push result
 
           # If this is a new match for a textnode
-          if coalescedMatchingCmGroup is null
-            coalescedMatchingCmGroup = matchingCmGroup
-            coalescedMatchingNodes[nodeIndex].matchingCmGroups.push coalescedMatchingCmGroup
+          if coalescedMatchingGroup is null
+            coalescedMatchingGroup = matchingGroup
+            coalescedMatchingNodes[nodeIndex].matchingGroups.push coalescedMatchingGroup
 
 
   for key, coalescedMatchingNode of coalescedMatchingNodes
-    for coalescedMatchingCmGroup in coalescedMatchingNode.matchingCmGroups
+    for coalescedMatchingGroup in coalescedMatchingNode.matchingGroups
 
       # Remove excess leads, for now
-      if coalescedMatchingCmGroup.lead
-        coalescedMatchingCmGroup.count = coalescedMatchingCmGroup.count - coalescedMatchingCmGroup.lead.length
+      if coalescedMatchingGroup.lead
+        coalescedMatchingGroup.count = coalescedMatchingGroup.count - coalescedMatchingGroup.lead.length
 
       # Delete Displayed Leads if We Have More Than 5 Results
-      if coalescedMatchingCmGroup.results.length > 5
-        i = coalescedMatchingCmGroup.results.length-1
-        while i >= 0 and coalescedMatchingCmGroup.results.length > 5
-          coalescedResult = coalescedMatchingCmGroup.results[i]
+      if coalescedMatchingGroup.results.length > 5
+        i = coalescedMatchingGroup.results.length-1
+        while i >= 0 and coalescedMatchingGroup.results.length > 5
+          coalescedResult = coalescedMatchingGroup.results[i]
           if coalescedResult.l?
-            coalescedMatchingCmGroup.count--
-            coalescedMatchingCmGroup.results.splice i,1
+            coalescedMatchingGroup.count--
+            coalescedMatchingGroup.results.splice i,1
           i--
 
       # Shunt Displayed CMs to Mosaic Link
-      if coalescedMatchingCmGroup.results.length > 5
-        i = coalescedMatchingCmGroup.results.length-1
-        while i >= 0 and coalescedMatchingCmGroup.results.length > 5
-          coalescedResult = coalescedMatchingCmGroup.results[i]
-          if !coalescedMatchingCmGroup.cm
-            coalescedMatchingCmGroup.cm = []
-          coalescedMatchingCmGroup.cm.push coalescedResult.c
-          coalescedMatchingCmGroup.results.splice i,1
+      if coalescedMatchingGroup.results.length > 5
+        i = coalescedMatchingGroup.results.length-1
+        while i >= 0 and coalescedMatchingGroup.results.length > 5
+          coalescedResult = coalescedMatchingGroup.results[i]
+          if !coalescedMatchingGroup.cm
+            coalescedMatchingGroup.cm = []
+          coalescedMatchingGroup.cm.push coalescedResult.c
+          coalescedMatchingGroup.results.splice i,1
           i--
 
   # Add span decoration to matched names
   for key, coalescedMatchingNode of coalescedMatchingNodes
     coalescedMatchingNode.textContent = nodeMetadata[key].textContent
-    for coalescedMatchingCmGroup in coalescedMatchingNode.matchingCmGroups
-      nameString = coalescedMatchingCmGroup.nameString
+    for coalescedMatchingGroup in coalescedMatchingNode.matchingGroups
+      nameString = coalescedMatchingGroup.nameString
       coalescedMatchingNode.textContent = coalescedMatchingNode.textContent.replace nameString, decorateFlyoutControl(nameString)
 
   coalescedMatchingNodes
