@@ -382,10 +382,26 @@ getResults = (matchingIds) ->
 findAllNames = (nodeMetadata) ->
   matches = {}
   for row, nodeIndex in nodeMetadata
-    match = findNames(row.tags, row.words)
+    if type is 'cm' or type is 'lead'
+      match = findNames(row.tags, row.words)
+    else
+      match = findFirmNames(row.tags, row.words)
     if match?
       matches[nodeIndex] = match
   matches
+
+findFirmNames = (tags, words) ->
+  matchingNodeText = []
+  matchingGroups = []
+  name = ''
+  for word, i in words
+    #name += word + ' '
+    matching = getResponse word
+    if matching.count > 0
+      matching.nameString = word
+      matchingGroups.push matching
+  if matchingGroups.length > 0
+    results = {'matchingGroups':matchingGroups}
 
 findNames = (tags, words) ->
   matchingNodeText = []
