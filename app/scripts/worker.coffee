@@ -72,7 +72,7 @@ cleanName = (token) ->
   if type is 'cm' or type is 'lead'
     diacritics.remove(token).trim().toLowerCase().replace(rePunctuation, "")
   else
-    diacritics.remove(token).trim()
+    diacritics.remove(token).trim().replace(rePunctuation, "")
 
 encodeDate = (a) ->
   encodeURIComponent(a.getUTCMonth()+1 + "/" + a.getUTCDate() + "/" + a.getUTCFullYear() + " " + a.getUTCHours() + ":" + a.getUTCMinutes() + ":" + a.getUTCSeconds())
