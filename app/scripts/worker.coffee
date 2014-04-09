@@ -368,7 +368,8 @@ getResponse = (query) ->
   if type is 'cm' or type is 'lead'
     normalizedQuery = diacritics.remove(query).toLowerCase()
   else
-    normalizedQuery = diacritics.remove(query)
+    normalizedQuery = diacritics.remove(query).trim().replace(rePunctuation, "")
+    #normalizedQuery = diacritics.remove(query)
 
   response = {}
   matchingIds = gazetteer[normalizedQuery]
@@ -403,7 +404,7 @@ findFirmNames = (tags, words) ->
     for word, i in words
       candidateString = generateFirmString(words, i)
       matching = getResponse candidateString
-      if matching.count > 0
+      if matching.count > 0 and candidateString.length > 1
         matching.nameString = candidateString
         matchingGroups.push matching
         break
@@ -418,7 +419,9 @@ generateFirmString = (words, number) ->
   i = 0
   firmName = ''
   while i < maxLength and i <= number
-    firmName += words[i] + ' '
+    if words[i].length > 1 and firmName isnt ''
+      firmName += ' '
+    firmName += words[i]
     i++
   return firmName.trim()
 
