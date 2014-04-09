@@ -69,8 +69,10 @@ getJSON = (opts) ->
 
 cleanName = (token) ->
   token ?= ''
-  diacritics.remove(token).trim().toLowerCase().replace(rePunctuation, "")
-  #token.trim().toLowerCase().replace(rePunctuation, "")
+  if type is 'cm' or type is 'lead'
+    diacritics.remove(token).trim().toLowerCase().replace(rePunctuation, "")
+  else
+    diacritics.remove(token).trim()
 
 encodeDate = (a) ->
   encodeURIComponent(a.getUTCMonth()+1 + "/" + a.getUTCDate() + "/" + a.getUTCFullYear() + " " + a.getUTCHours() + ":" + a.getUTCMinutes() + ":" + a.getUTCSeconds())
@@ -363,8 +365,11 @@ generateReturnMessage = (workerArguments, demand) ->
 # Matcher
 #--------
 getResponse = (query) ->
-  normalizedQuery = diacritics.remove(query).toLowerCase()
-  #normalizedQuery = query.toLowerCase()
+  if type is 'cm' or type is 'lead'
+    normalizedQuery = diacritics.remove(query).toLowerCase()
+  else
+    normalizedQuery = diacritics.remove(query)
+
   response = {}
   matchingIds = gazetteer[normalizedQuery]
   if matchingIds?
