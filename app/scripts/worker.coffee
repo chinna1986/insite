@@ -399,14 +399,29 @@ findFirmNames = (tags, words) ->
   matchingNodeText = []
   matchingGroups = []
   name = ''
-  for word, i in words
-    #name += word + ' '
-    matching = getResponse word
-    if matching.count > 0
-      matching.nameString = word
-      matchingGroups.push matching
+  while words.length > 0
+    for word, i in words
+      candidateString = generateFirmString(words, i)
+      matching = getResponse candidateString
+      if matching.count > 0
+        matching.nameString = candidateString
+        matchingGroups.push matching
+        break
+    words.shift()
+    tags.shift()
   if matchingGroups.length > 0
     results = {'matchingGroups':matchingGroups}
+
+generateFirmString = (words, number) ->
+  length = words.length
+  maxLength = (if length < 6 then length else 6)
+  i = 0
+  firmName = ''
+  while i < maxLength and i <= number
+    firmName += words[i] + ' '
+    i++
+  return firmName.trim()
+
 
 findNames = (tags, words) ->
   matchingNodeText = []
