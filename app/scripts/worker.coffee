@@ -346,7 +346,10 @@ self.addEventListener "message", ((e) ->
     when 'load firms' then loadLookups('firm', workerArguments, e.data.counter).then () ->
       self.postMessage generateReturnMessage(workerArguments, demand)
     when 'find names'
-      workerArguments.matches = findAllNames(workerArguments.nodeMetadata)
+      if type is 'cm' or type is 'lead'
+        workerArguments.matches = findAllNames(workerArguments.nodeMetadata)
+      else
+        workerArguments.matches = findAllNames(workerArguments.nodeContentdata)
       self.postMessage({'demand': demand, 'workerArguments': workerArguments})
 
 ), false
@@ -385,49 +388,31 @@ getResults = (matchingIds) ->
     results.push map[matchingId]
   results
 
-findAllNames = (nodeMetadata) ->
+findAllNames = (nodeData) ->
   matches = {}
-  for row, nodeIndex in nodeMetadata
+  for row, nodeIndex in nodeData
     if type is 'cm' or type is 'lead'
       match = findNames(row.tags, row.words)
     else
-      match = findFirmNames(row.tags, row.words)
+      match = findFirmNames(row.textContent)
     if match?
       matches[nodeIndex] = match
   matches
 
-findFirmNames = (tags, words) ->
-  matchingNodeText = []
+findFirmNames = (textContent) ->
   matchingGroups = []
   name = ''
-  while words.length > 0
-    for word, i in words
-      candidateString = generateFirmString(words, i)
-      matching = getResponse candidateString
-      if matching.count > 0 and candidateString.length > 1
-        matching.nameString = candidateString
-        matchingGroups.push matching
-        break
-    words.shift()
-    tags.shift()
+  #for word, i in textContent
+  candidateString = textContent
+  matching = getResponse candidateString
+  if matching.count > 0 and candidateString.length > 1
+    matching.nameString = candidateString
+    matchingGroups.push matching
+    #break
   if matchingGroups.length > 0
     results = {'matchingGroups':matchingGroups}
 
-generateFirmString = (words, number) ->
-  length = words.length
-  maxLength = (if length < 6 then length else 6)
-  i = 0
-  firmName = ''
-  while i < maxLength and i <= number
-    if words[i].length > 1 and firmName isnt ''
-      firmName += ' '
-    firmName += words[i]
-    i++
-  return firmName.trim()
-
-
 findNames = (tags, words) ->
-  matchingNodeText = []
   matchingGroups = []
   while words.length > 0
     # Check for a Match in Each Filter
