@@ -110,7 +110,8 @@ isDisabledSite = () ->
             'glgroup.com',
             'glg.it',
             'mail.google.com',
-            'facebook.com'
+            'facebook.com',
+            'linkedin.com'
           ]
 
           for site in blacklist

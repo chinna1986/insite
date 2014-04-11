@@ -385,9 +385,9 @@ getResults = (matchingIds) ->
     results.push map[matchingId]
   results
 
-findAllNames = (nodeMetadata) ->
+findAllNames = (nodeData) ->
   matches = {}
-  for row, nodeIndex in nodeMetadata
+  for row, nodeIndex in nodeData
     if type is 'cm' or type is 'lead'
       match = findNames(row.tags, row.words)
     else
@@ -397,7 +397,6 @@ findAllNames = (nodeMetadata) ->
   matches
 
 findFirmNames = (tags, words) ->
-  matchingNodeText = []
   matchingGroups = []
   name = ''
   while words.length > 0
@@ -425,11 +424,10 @@ generateFirmString = (words, number) ->
     i++
   firmName = firmName.replace(/(^\s*)|(\s*$)/gi,"");
   firmName = firmName.replace(/[ ]{2,}/gi," ");
-  firmName = firmName.replace(/\n /,"\n");
+  firmName = firmName.replace(/& /g," & ");
   return firmName.trim()
 
 findNames = (tags, words) ->
-  matchingNodeText = []
   matchingGroups = []
   while words.length > 0
     # Check for a Match in Each Filter
