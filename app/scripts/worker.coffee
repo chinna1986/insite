@@ -423,8 +423,10 @@ generateFirmString = (words, number) ->
       firmName += ' '
     firmName += words[i]
     i++
+  firmName = firmName.replace(/(^\s*)|(\s*$)/gi,"");
+  firmName = firmName.replace(/[ ]{2,}/gi," ");
+  firmName = firmName.replace(/\n /,"\n");
   return firmName.trim()
-
 
 findNames = (tags, words) ->
   matchingNodeText = []
