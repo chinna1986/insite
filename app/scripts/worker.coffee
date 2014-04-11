@@ -425,6 +425,7 @@ generateFirmString = (words, number) ->
   firmName = firmName.replace(/(^\s*)|(\s*$)/gi,"");
   firmName = firmName.replace(/[ ]{2,}/gi," ");
   firmName = firmName.replace(/& /g," & ");
+  firmName = firmName.replace(/^\.{1,3}/gi,"");
   return firmName.trim()
 
 findNames = (tags, words) ->
