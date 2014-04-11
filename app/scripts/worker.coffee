@@ -394,7 +394,7 @@ findAllNames = (nodeData) ->
     if type is 'cm' or type is 'lead'
       match = findNames(row.tags, row.words)
     else
-      match = findFirmNames(row.textContent)
+      match = findFirmNames(row.textContent) if row.textContent.length > 1 
     if match?
       matches[nodeIndex] = match
   matches
@@ -405,7 +405,7 @@ findFirmNames = (textContent) ->
   #for word, i in textContent
   candidateString = textContent
   matching = getResponse candidateString
-  if matching.count > 0 and candidateString.length > 1
+  if matching.count > 0
     matching.nameString = candidateString
     matchingGroups.push matching
     #break
