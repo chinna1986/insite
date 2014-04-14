@@ -32,8 +32,10 @@ renderFlyout = (node,matches) ->
   flyoutRoot = document.createElement 'span'
   flyoutRoot.classList.add 'glggotnames-flyout-menu'
 
-  #flyoutShadow = flyoutRoot.createShadowRoot()
-  flyoutShadow = flyoutRoot.webkitCreateShadowRoot()
+  if !HTMLElement.prototype.webkitCreateShadowRoot
+    flyoutShadow = flyoutRoot.createShadowRoot()
+  else 
+    flyoutShadow = flyoutRoot.webkitCreateShadowRoot()
   flyoutShadow.applyAuthorStyles = false
 
   flyout = document.createElement 'span'
@@ -60,8 +62,10 @@ bindFlyout = (icon,matches) ->
   icon.addEventListener 'mouseover', (event) ->
 
     flyout = renderFlyout(icon,matches)
-    #f = flyout.shadowRoot.querySelector('ul')
-    f = flyout.webkitShadowRoot.querySelector('ul')
+    if !HTMLElement.prototype.webkitCreateShadowRoot
+      f = flyout.shadowRoot.querySelector('ul')
+    else
+      f = flyout.webkitShadowRoot.querySelector('ul')
     h = icon
     chrome.runtime.sendMessage {method:'pushAnalytics', message:['_trackEvent', 'flyout', 'displayed', document.location.href]}, (response) ->
 
@@ -97,8 +101,10 @@ bindFlyout = (icon,matches) ->
           ###
         event.preventDefault()
 
-    #leads = flyout.shadowRoot.querySelectorAll('.glg-add-lead')
-    leads = flyout.webkitShadowRoot.querySelectorAll('.glg-add-lead')
+    if !HTMLElement.prototype.webkitCreateShadowRoot
+      leads = flyout.shadowRoot.querySelectorAll('.glg-add-lead')
+    else
+      leads = flyout.webkitShadowRoot.querySelectorAll('.glg-add-lead')
     l = leads.length-1
     while l>-1
       showConsultsList(leads.item(l))
