@@ -422,11 +422,11 @@ generateFirmString = (words, number) ->
       firmName += ' '
     firmName += words[i]
     i++
-  firmName = firmName.replace(/(^\s*)|(\s*$)/gi,"");
-  firmName = firmName.replace(/[ ]{2,}/gi," ");
-  firmName = firmName.replace(/& /g," & ");
-  firmName = firmName.replace(/^\.{1,3}/gi,"");
-  return firmName.trim()
+  firmName.replace(/(^\s*)|(\s*$)/gi,"")
+    .replace(/[ ]{2,}/gi," ")
+    .replace(/& /g," & ")
+    .replace(/^\.{1,3}/gi,"")
+    .trim()
 
 findNames = (tags, words) ->
   matchingGroups = []
