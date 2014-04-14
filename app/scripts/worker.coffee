@@ -369,7 +369,6 @@ getResponse = (query) ->
     normalizedQuery = diacritics.remove(query).toLowerCase()
   else
     normalizedQuery = diacritics.remove(query).trim().replace(rePunctuation, "")
-    #normalizedQuery = diacritics.remove(query)
 
   response = {}
   matchingIds = gazetteer[normalizedQuery]
