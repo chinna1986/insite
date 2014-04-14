@@ -32,7 +32,7 @@ renderFlyout = (node,matches) ->
   flyoutRoot = document.createElement 'span'
   flyoutRoot.classList.add 'glggotnames-flyout-menu'
 
-  flyoutShadow = flyoutRoot.webkitCreateShadowRoot()
+  flyoutShadow = flyoutRoot.createShadowRoot()
   flyoutShadow.applyAuthorStyles = false
 
   flyout = document.createElement 'span'
@@ -59,7 +59,7 @@ bindFlyout = (icon,matches) ->
   icon.addEventListener 'mouseover', (event) ->
 
     flyout = renderFlyout(icon,matches)
-    f = flyout.webkitShadowRoot.querySelector('ul')
+    f = flyout.shadowRoot.querySelector('ul')
     h = icon
     chrome.runtime.sendMessage {method:'pushAnalytics', message:['_trackEvent', 'flyout', 'displayed', document.location.href]}, (response) ->
 
@@ -95,7 +95,7 @@ bindFlyout = (icon,matches) ->
           ###
         event.preventDefault()
 
-    leads = flyout.webkitShadowRoot.querySelectorAll('.glg-add-lead')
+    leads = flyout.shadowRoot.querySelectorAll('.glg-add-lead')
     l = leads.length-1
     while l>-1
       showConsultsList(leads.item(l))
