@@ -411,20 +411,25 @@
           {{#c}}
             href="https://advisors.glgroup.com/cm/{{c}}"
           {{/c}}
-          {{#o}}
-            href="https://advisors.glgroup.com/company/{{o}}"
-          {{/o}}
+          {{#p}}
+            href="https://advisors.glgroup.com/company/{{p}}"
+          {{/p}}
           target="_blank">{{n}}</a>
           <span class="type-text">
             {{#c}}(CM){{/c}}
             {{#l}}(Lead){{/l}}
+            {{#f}}(Company){{/f}}
           </span>
         </div>
         <div class="employment-text">
           {{#t}}
             {{t}} at
           {{/t}}
-          {{o}}</div>
+          {{o}}
+          {{#u}}
+          Current Employees - {{u}} CMs
+          {{/u}}
+        </div>
         <div class="detail-text">
           {{b}} <a id="more"
           {{#a}}
@@ -436,9 +441,9 @@
           {{#c}}
             href="https://advisors.glgroup.com/cm/{{c}}"
           {{/c}}
-          {{#o}}
-            href="https://advisors.glgroup.com/company/{{o}}"
-          {{/o}}
+          {{#p}}
+            href="https://advisors.glgroup.com/company/{{p}}"
+          {{/p}}
           target="_blank"> more</a>
         </div>
       </div>
