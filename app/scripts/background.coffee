@@ -165,8 +165,8 @@ coalesceMatches = (responses, nodeMetadata) ->
     coalescedMatchingNode.textContent = nodeMetadata[key].textContent
     for coalescedMatchingGroup in coalescedMatchingNode.matchingGroups
       nameString = coalescedMatchingGroup.nameString
-      coalescedMatchingNode.textContent = coalescedMatchingNode.textContent.replace nameString, decorateFlyoutControl(nameString)
-
+      re = new RegExp(nameString, "i")
+      coalescedMatchingNode.textContent = coalescedMatchingNode.textContent.replace re, decorateFlyoutControl(nameString)
   coalescedMatchingNodes
 
 chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->

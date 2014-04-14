@@ -397,21 +397,25 @@ findAllNames = (nodeData) ->
 
 findFirmNames = (tags, words) ->
   matchingGroups = []
+  flags = ['', 'toUpper', 'toLower']
   name = ''
   while words.length > 0
-    for word, i in words
-      candidateString = generateFirmString(words, i)
-      matching = getResponse candidateString
-      if matching.count > 0 and candidateString.length > 1
-        matching.nameString = candidateString
-        matchingGroups.push matching
+    for flag in flags
+      for word, i in words
+        candidateString = generateFirmString(words, i, flag)
+        matching = getResponse candidateString
+        if matching.count > 0 and candidateString.length > 1
+          matching.nameString = candidateString
+          matchingGroups.push matching
+          break
+      if matchingGroups.length > 0
         break
     words.shift()
     tags.shift()
   if matchingGroups.length > 0
     results = {'matchingGroups':matchingGroups}
 
-generateFirmString = (words, number) ->
+generateFirmString = (words, number, flag) ->
   length = words.length
   maxLength = (if length < 6 then length else 6)
   i = 0
@@ -421,11 +425,17 @@ generateFirmString = (words, number) ->
       firmName += ' '
     firmName += words[i]
     i++
-  firmName.replace(/(^\s*)|(\s*$)/gi,"")
-    .replace(/[ ]{2,}/gi," ")
-    .replace(/& /g," & ")
-    .replace(/^\.{1,3}/gi,"")
-    .trim()
+  firmName = firmName.replace(/(^\s*)|(\s*$)/gi,"")
+  firmName = firmName.replace(/[ ]{2,}/gi," ")
+  firmName = firmName.replace(/& /g," & ")
+  firmName = firmName.replace(/^\.{1,3}/gi,"")
+  firmName = firmName.trim()
+  if flag is 'toUpper'
+    firmName.toUpperCase()
+  else if flag is 'toLower'
+    firmName.toLowerCase()
+  else
+    return firmName
 
 findNames = (tags, words) ->
   matchingGroups = []
