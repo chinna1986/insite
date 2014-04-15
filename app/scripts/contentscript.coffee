@@ -203,6 +203,7 @@ processData = (nodes, nodeContentData, nodeWorkerData) ->
       icons = parentNode.querySelectorAll('.glg-glyph-list')
       for icon in icons
         textContent = icon.parentNode.textContent
+        iconBound = false
         for matchingGroup in nodeMatches.matchingGroups
 
           # Populate allMatchingData
@@ -213,8 +214,9 @@ processData = (nodes, nodeContentData, nodeWorkerData) ->
             for result in matchingGroup.results
               if result.c?
                 allMatchingData[result.c] = null
-          if textContent.indexOf(matchingGroup.nameString) isnt -1
+          if textContent.indexOf(matchingGroup.nameString) isnt -1 and !iconBound
             bindFlyout icon, matchingGroup
+            iconBound = true
 
 toggleExtension = (isDisabled) ->
   console.log 'isDisabled: ' + isDisabled
