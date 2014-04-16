@@ -423,11 +423,11 @@ generateFirmString = (words, number, flag) ->
   while i < maxLength and i <= number
     firmName += words[i] + ' '
     i++
-  firmName = firmName.replace(/[ ]{2,}/gi," ")
-  firmName = firmName.replace(/\ \.\ /g,". ")
-  firmName = firmName.replace(/\ \,\ /g,", ")
-  firmName = firmName.replace(/^\.{1,3}/gi,"")
-  firmName = firmName.trim()
+  firmNameFormat = firmName.replace(/[ ]{2,}/gi," ")
+    .replace(/\ \.\ /g,". ")
+    .replace(/\ \,\ /g,", ")
+    .replace(/^\.{1,3}/gi,"")
+  firmName = firmNameFormat.trim()
   if flag is 'toUpper'
     firmName.toUpperCase()
   else
