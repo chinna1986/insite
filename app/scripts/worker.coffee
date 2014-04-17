@@ -397,7 +397,7 @@ findAllNames = (nodeData) ->
 
 findFirmNames = (tags, words) ->
   matchingGroups = []
-  flags = ['', 'toUpper', 'toLower']
+  flags = ['', 'toUpper']
   name = ''
   while words.length > 0
     for flag in flags
@@ -421,19 +421,15 @@ generateFirmString = (words, number, flag) ->
   i = 0
   firmName = ''
   while i < maxLength and i <= number
-    if words[i].length > 1 and firmName isnt ''
-      firmName += ' '
-    firmName += words[i]
+    firmName += words[i] + ' '
     i++
-  firmName = firmName.replace(/(^\s*)|(\s*$)/gi,"")
-  firmName = firmName.replace(/[ ]{2,}/gi," ")
-  firmName = firmName.replace(/& /g," & ")
-  firmName = firmName.replace(/^\.{1,3}/gi,"")
-  firmName = firmName.trim()
+  firmNameFormat = firmName.replace(/[ ]{2,}/gi," ")
+    .replace(/\ \.\ /g,". ")
+    .replace(/\ \,\ /g,", ")
+    .replace(/^\.{1,3}/gi,"")
+  firmName = firmNameFormat.trim()
   if flag is 'toUpper'
     firmName.toUpperCase()
-  else if flag is 'toLower'
-    firmName.toLowerCase()
   else
     return firmName
 
