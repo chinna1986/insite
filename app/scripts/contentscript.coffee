@@ -202,7 +202,7 @@ processData = (nodes, nodeContentData, nodeWorkerData) ->
       # Bind a flyout to each icon
       icons = parentNode.querySelectorAll('.glg-glyph-list')
       for icon in icons
-        textContent = icon.parentNode.textContent
+        textContent = icon.parentNode.textContent.replace(/[ |\s\u00A0]{2,}/gi," ")
         iconBound = false
         for matchingGroup in nodeMatches.matchingGroups
 
