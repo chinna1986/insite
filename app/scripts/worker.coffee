@@ -72,7 +72,7 @@ cleanName = (token) ->
   if type is 'cm' or type is 'lead'
     diacritics.remove(token).trim().toLowerCase().replace(rePunctuation, "")
   else
-    token.toLowerCase()
+    token
 
 encodeDate = (a) ->
   encodeURIComponent(a.getUTCMonth()+1 + "/" + a.getUTCDate() + "/" + a.getUTCFullYear() + " " + a.getUTCHours() + ":" + a.getUTCMinutes() + ":" + a.getUTCSeconds())
@@ -369,7 +369,7 @@ getResponse = (query) ->
     normalizedQuery = diacritics.remove(query).toLowerCase()
   else
     #normalizedQuery = diacritics.remove(query).toLowerCase().trim().replace(rePunctuation, "")
-    normalizedQuery = diacritics.remove(query).toLowerCase().trim()
+    normalizedQuery = query.trim()
 
   response = {}
   matchingIds = gazetteer[normalizedQuery]
@@ -396,52 +396,69 @@ findAllNames = (nodeData) ->
       matches[nodeIndex] = match
   matches
 
+getWordDeck = (words) ->
+  return words.slice 0, 6
+  
 findFirmNames = (words) ->
   matchingGroups = []
-  flags = ['', 'toUpper']
-  name = ''
+  
+  adjacentWord = null
   while words.length > 0
-
     # Create a list of on-deck words and iterate backwards
-    wordDeck = words.slice 0, 6
+    wordDeck = getWordDeck words
     matching = null
-    poppedWord = null
+    upperCase = false
+    
+    initialAdjacentWord = adjacentWord
     while wordDeck.length > 0
-      if recognizeFirmPattern poppedWord, wordDeck
+      if recognizeFirmPattern adjacentWord, wordDeck
         candidateString = generateFirmString wordDeck
         matching = getResponse candidateString
         if matching.count > 0
           words = words.slice wordDeck.length
-          poppedWord = wordDeck.pop()
+          adjacentWord = wordDeck.pop()
           matching.nameString = candidateString
           matchingGroups.push matching
           break
         else
-          poppedWord = wordDeck.pop()
+          adjacentWord = wordDeck.pop()
       else
-        poppedWord = wordDeck.pop()
-
-    # If no match was found, shift the words array by one
+        adjacentWord = wordDeck.pop()
+      
+      # If no match was found, first try shifting the deck to all upper-case  
+      if wordDeck.length is 0 and upperCase is false and !matching?.count?
+        upperCase = true
+        adjacentWord = initialAdjacentWord
+        repeatDeck = getWordDeck words
+        # Only check upper case if the first word of the deck is not entirely lower case
+        if !(repeatDeck[0] is repeatDeck[0].toLowerCase())
+          wordDeck = repeatDeck
+          for word, i in wordDeck
+            wordDeck[i] = word.toUpperCase()
+        
+    # If no match found remove the first word and try again
     if !matching?.count?
-      words.shift()
+      adjacentWord = words.shift()
 
   if matchingGroups.length > 0
     results = {'matchingGroups':matchingGroups}
 
-recognizeFirmPattern = (poppedWord, words) ->
+recognizeFirmPattern = (adjacentWord, words) ->
   if words.length > 0
     #Checks involving the popped (previous) word
-    if poppedWord?
+    if adjacentWord?
       # If the first character of the popped (previous) word and the current word are capitalized
-      firstPoppedCharacter = poppedWord.substr(0,1)
-      firstWordCharacter = words[0].substr(0,1)
-      if firstPoppedCharacter.toUpperCase() is firstPoppedCharacter and firstWordCharacter.toUpperCase() is firstWordCharacter
+      aFirstCharacter = adjacentWord.substr(0,1)
+      wfFirstCharacter = words[0].substr(0,1)
+      if aFirstCharacter.toUpperCase() is aFirstCharacter and wfFirstCharacter.toUpperCase() is wfFirstCharacter
         return false
     # Check if the first word is entirely lower case
     if words[0] is words[0].toLowerCase()
       return false
     # If only one word, make sure that the word has more than 4 characters
     else if words.length is 1 and words[0].length <= 4 and not words[0].toUpperCase() is words[0]
+      return false
+    else if adjacentWord is 'of'
       return false
     else
       return true
