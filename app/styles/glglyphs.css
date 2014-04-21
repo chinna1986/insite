@@ -7,7 +7,7 @@
 }
 
 [class^="glg-glyph-"], [class*=" glg-glyph-"] {
-    font-family: 'GLGlyphs';
+    font-family: 'GLGlyphs' !important;
     speak: none;
     font-style: normal;
     font-weight: normal;

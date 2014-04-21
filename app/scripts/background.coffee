@@ -26,6 +26,7 @@ loadLookups = (options) ->
     'startId': 0
     'includeBiography': options.includeBiography
   workerConfig = [{
+    ###
       workerUrl: "scripts/worker.js"
       initialDemand: "load leads"
       budgetedWorkers: 10
@@ -38,6 +39,7 @@ loadLookups = (options) ->
       officiallyOutOfMemory: "officiallyOutOfMemory"
       workerArguments: workerArguments
     },{
+    ###
     workerUrl: "scripts/worker.js"
     initialDemand: "load firms"
     budgetedWorkers: 10
