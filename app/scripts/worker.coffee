@@ -214,10 +214,8 @@ updateLookupsPromise = (startId) ->
         .then undefined, (error) ->
           reject error
       else
-        console.log 'unable to process data download'
         resolve 'unable to process data download'
     .then undefined, (error) ->
-      console.log 'unable to get server last complete update time'
       resolve 'unable to get server last complete update time'
 
     # Delta Update
@@ -398,27 +396,37 @@ findAllNames = (nodeData) ->
 
 getWordDeck = (words) ->
   return words.slice 0, 6
-  
+
+getFollowingWord = (words, wordDeck) ->
+  if words.length > wordDeck.length
+    return words[wordDeck.length] 
+  else
+    return null
+    
 findFirmNames = (words) ->
   matchingGroups = []
   
   previousWord = null
   nextWord = null
+  
   while words.length > 0
     # Create a list of on-deck words and iterate backwards
     wordDeck = getWordDeck words
-    matching = null
+    nextWord = getFollowingWord words, wordDeck
     upperCase = false
-    
     while wordDeck.length > 0
+      matching = null
       if recognizeFirmPattern previousWord, nextWord, wordDeck
         candidateString = generateFirmString wordDeck
         matching = getResponse candidateString
         if matching.count > 0
+          console.log 'starting namestring render'
+          nameString = words.slice(0,wordDeck.length).join(' ').trim()
+          console.log nameString
+          matching.nameString = nameString
+          matchingGroups.push matching
           words = words.slice wordDeck.length
           nextWord = wordDeck.pop()
-          matching.nameString = candidateString
-          matchingGroups.push matching
           break
         else
           nextWord = wordDeck.pop()
@@ -432,12 +440,12 @@ findFirmNames = (words) ->
         # Only check upper case if the first word of the deck is not entirely lower case
         if !(repeatDeck[0] is repeatDeck[0].toLowerCase())
           wordDeck = repeatDeck
+          nextWord = getFollowingWord words, wordDeck
           for word, i in wordDeck
             wordDeck[i] = word.toUpperCase()
         
     # If no match found remove the first word and try again
-    if !matching?.count?
-      previousWord = words.shift()
+    previousWord = words.shift()
 
   if matchingGroups.length > 0
     results = {'matchingGroups':matchingGroups}
