@@ -196,8 +196,9 @@ processData = (nodes, nodeContentData, nodeWorkerData) ->
       # Insert the highlighting
       parentNode = nodes[nodeIndex].parentNode
       newNode = document.createElement 'span'
-      newNode.innerHTML = nodeMatches.textContent
-      parentNode.replaceChild newNode, nodes[nodeIndex]
+      if nodeMatches.textContent.search('glggotnames-flyout-control') > 0
+        newNode.innerHTML = nodeMatches.textContent
+        parentNode.replaceChild newNode, nodes[nodeIndex]
 
       # Bind a flyout to each icon
       icons = parentNode.querySelectorAll('.glg-glyph-list')
