@@ -167,7 +167,7 @@ coalesceMatches = (responses, nodeMetadata) ->
     coalescedMatchingNode.textContent = nodeMetadata[key].textContent
     for coalescedMatchingGroup in coalescedMatchingNode.matchingGroups
       nameString = coalescedMatchingGroup.nameString
-      re = new RegExp("\\b"+nameString+"\\b", "i")
+      re = new RegExp("\\b"+nameString, "i")
       coalescedMatchingNode.textContent = coalescedMatchingNode.textContent.replace re, decorateFlyoutControl(nameString)
   coalescedMatchingNodes
 
