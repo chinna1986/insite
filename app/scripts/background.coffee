@@ -26,6 +26,7 @@ loadLookups = (options) ->
     'startId': 0
     'includeBiography': options.includeBiography
   workerConfig = [{
+    ###
       workerUrl: "scripts/worker.js"
       initialDemand: "load leads"
       budgetedWorkers: 10
@@ -38,11 +39,12 @@ loadLookups = (options) ->
       officiallyOutOfMemory: "officiallyOutOfMemory"
       workerArguments: workerArguments
     },{
-      workerUrl: "scripts/worker.js"
-      initialDemand: "load firms"
-      budgetedWorkers: 10
-      officiallyOutOfMemory: "officiallyOutOfMemory"
-      workerArguments: workerArguments
+    ###
+    workerUrl: "scripts/worker.js"
+    initialDemand: "load firms"
+    budgetedWorkers: 10
+    officiallyOutOfMemory: "officiallyOutOfMemory"
+    workerArguments: workerArguments
   }]
   workerManager = new malory(workerConfig)
 
@@ -165,8 +167,7 @@ coalesceMatches = (responses, nodeMetadata) ->
     coalescedMatchingNode.textContent = nodeMetadata[key].textContent
     for coalescedMatchingGroup in coalescedMatchingNode.matchingGroups
       nameString = coalescedMatchingGroup.nameString
-      re = new RegExp("\\b"+nameString, "i")
-      coalescedMatchingNode.textContent = coalescedMatchingNode.textContent.replace re, decorateFlyoutControl(nameString)
+      coalescedMatchingNode.textContent = coalescedMatchingNode.textContent.replace nameString, decorateFlyoutControl(nameString)
   coalescedMatchingNodes
 
 chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
