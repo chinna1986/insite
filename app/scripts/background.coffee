@@ -26,18 +26,20 @@ loadLookups = (options) ->
     'startId': 0
     'includeBiography': options.includeBiography
   workerConfig = [{
-    workerUrl: "scripts/worker.js"
-    initialDemand: "load leads"
-    budgetedWorkers: 10
-    officiallyOutOfMemory: "officiallyOutOfMemory"
-    workerArguments: workerArguments
-  },{
-    workerUrl: "scripts/worker.js"
-    initialDemand: "load cms"
-    budgetedWorkers: 10
-    officiallyOutOfMemory: "officiallyOutOfMemory"
-    workerArguments: workerArguments
-  },{
+    ###
+      workerUrl: "scripts/worker.js"
+      initialDemand: "load leads"
+      budgetedWorkers: 10
+      officiallyOutOfMemory: "officiallyOutOfMemory"
+      workerArguments: workerArguments
+    },{
+      workerUrl: "scripts/worker.js"
+      initialDemand: "load cms"
+      budgetedWorkers: 10
+      officiallyOutOfMemory: "officiallyOutOfMemory"
+      workerArguments: workerArguments
+    },
+    ###
     workerUrl: "scripts/worker.js"
     initialDemand: "load firms"
     budgetedWorkers: 10
@@ -165,7 +167,7 @@ coalesceMatches = (responses, nodeMetadata) ->
     coalescedMatchingNode.textContent = nodeMetadata[key].textContent
     for coalescedMatchingGroup in coalescedMatchingNode.matchingGroups
       nameString = coalescedMatchingGroup.nameString
-      re = new RegExp("\\b"+nameString+"\\b", "i")
+      re = new RegExp("\\b"+nameString, "i")
       coalescedMatchingNode.textContent = coalescedMatchingNode.textContent.replace re, decorateFlyoutControl(nameString)
   coalescedMatchingNodes
 

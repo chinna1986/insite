@@ -16,7 +16,7 @@ maxId = -1
 includeBiography = false
 
 # Query Locations
-baseUrl = 'http://epiquery.glgroup.com'
+baseUrl = 'http://query.glgroup.com'
 dataQueries =
   'completeQueries':
     'status': baseUrl+'/gotNames/dw/getStatus.mysql.mustache'
@@ -33,7 +33,7 @@ dataQueries =
 # Utility Functions
 #------------------
 getMaxRecords = () ->
-  250000
+  500000
 
 logTiming = (message) ->
   d = new Date()
@@ -72,7 +72,7 @@ cleanName = (token) ->
   if type is 'cm' or type is 'lead'
     diacritics.remove(token).trim().toLowerCase().replace(rePunctuation, "")
   else
-    diacritics.remove(token).trim().replace(rePunctuation, "")
+    token.toLowerCase()
 
 encodeDate = (a) ->
   encodeURIComponent(a.getUTCMonth()+1 + "/" + a.getUTCDate() + "/" + a.getUTCFullYear() + " " + a.getUTCHours() + ":" + a.getUTCMinutes() + ":" + a.getUTCSeconds())
@@ -368,7 +368,8 @@ getResponse = (query) ->
   if type is 'cm' or type is 'lead'
     normalizedQuery = diacritics.remove(query).toLowerCase()
   else
-    normalizedQuery = diacritics.remove(query).trim().replace(rePunctuation, "")
+    #normalizedQuery = diacritics.remove(query).toLowerCase().trim().replace(rePunctuation, "")
+    normalizedQuery = diacritics.remove(query).toLowerCase().trim()
 
   response = {}
   matchingIds = gazetteer[normalizedQuery]
@@ -390,48 +391,72 @@ findAllNames = (nodeData) ->
     if type is 'cm' or type is 'lead'
       match = findNames(row.tags, row.words)
     else
-      match = findFirmNames(row.tags, row.words)
+      match = findFirmNames(row.words)
     if match?
       matches[nodeIndex] = match
   matches
 
-findFirmNames = (tags, words) ->
+findFirmNames = (words) ->
   matchingGroups = []
   flags = ['', 'toUpper']
   name = ''
   while words.length > 0
-    for flag in flags
-      for word, i in words
-        candidateString = generateFirmString(words, i, flag)
+
+    # Create a list of on-deck words and iterate backwards
+    wordDeck = words.slice 0, 6
+    matching = null
+    poppedWord = null
+    while wordDeck.length > 0
+      if recognizeFirmPattern poppedWord, wordDeck
+        candidateString = generateFirmString wordDeck
         matching = getResponse candidateString
-        if matching.count > 0 and candidateString.length > 1
+        if matching.count > 0
+          words = words.slice wordDeck.length
+          poppedWord = wordDeck.pop()
           matching.nameString = candidateString
           matchingGroups.push matching
           break
-      if matchingGroups.length > 0
-        break
-    words.shift()
-    tags.shift()
+        else
+          poppedWord = wordDeck.pop()
+      else
+        poppedWord = wordDeck.pop()
+
+    # If no match was found, shift the words array by one
+    if !matching?.count?
+      words.shift()
+
   if matchingGroups.length > 0
     results = {'matchingGroups':matchingGroups}
 
-generateFirmString = (words, number, flag) ->
-  length = words.length
-  maxLength = (if length < 6 then length else 6)
-  i = 0
+recognizeFirmPattern = (poppedWord, words) ->
+  if words.length > 0
+    #Checks involving the popped (previous) word
+    if poppedWord?
+      # If the first character of the popped (previous) word and the current word are capitalized
+      firstPoppedCharacter = poppedWord.substr(0,1)
+      firstWordCharacter = words[0].substr(0,1)
+      if firstPoppedCharacter.toUpperCase() is firstPoppedCharacter and firstWordCharacter.toUpperCase() is firstWordCharacter
+        return false
+    # Check if the first word is entirely lower case
+    if words[0] is words[0].toLowerCase()
+      return false
+    # If only one word, make sure that the word has more than 4 characters
+    else if words.length is 1 and words[0].length <= 4 and not words[0].toUpperCase() is words[0]
+      return false
+    else
+      return true
+  else
+      return false
+
+generateFirmString = (words) ->
   firmName = ''
-  while i < maxLength and i <= number
-    firmName += words[i] + ' '
-    i++
-  firmNameFormat = firmName.replace(/[ ]{2,}/gi," ")
+  for word, i in words
+    firmName += word + ' '
+  firmName = firmName.replace(/[ ]{2,}/gi," ")
     .replace(/\ \.\ /g,". ")
     .replace(/\ \,\ /g,", ")
     .replace(/^\.{1,3}/gi,"")
-  firmName = firmNameFormat.trim()
-  if flag is 'toUpper'
-    firmName.toUpperCase()
-  else
-    return firmName
+    return firmName.trim()
 
 findNames = (tags, words) ->
   matchingGroups = []
