@@ -33,7 +33,7 @@ dataQueries =
 # Utility Functions
 #------------------
 getMaxRecords = () ->
-  500000
+  250000
 
 logTiming = (message) ->
   d = new Date()
