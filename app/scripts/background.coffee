@@ -38,11 +38,11 @@ loadLookups = (options) ->
       officiallyOutOfMemory: "officiallyOutOfMemory"
       workerArguments: workerArguments
     },{
-    workerUrl: "scripts/worker.js"
-    initialDemand: "load firms"
-    budgetedWorkers: 10
-    officiallyOutOfMemory: "officiallyOutOfMemory"
-    workerArguments: workerArguments
+      workerUrl: "scripts/worker.js"
+      initialDemand: "load firms"
+      budgetedWorkers: 10
+      officiallyOutOfMemory: "officiallyOutOfMemory"
+      workerArguments: workerArguments
   }]
   workerManager = new malory(workerConfig)
 

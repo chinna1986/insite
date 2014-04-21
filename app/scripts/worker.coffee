@@ -33,7 +33,7 @@ dataQueries =
 # Utility Functions
 #------------------
 getMaxRecords = () ->
-  250000
+  500000
 
 logTiming = (message) ->
   d = new Date()
@@ -402,33 +402,32 @@ getWordDeck = (words) ->
 findFirmNames = (words) ->
   matchingGroups = []
   
-  adjacentWord = null
+  previousWord = null
+  nextWord = null
   while words.length > 0
     # Create a list of on-deck words and iterate backwards
     wordDeck = getWordDeck words
     matching = null
     upperCase = false
     
-    initialAdjacentWord = adjacentWord
     while wordDeck.length > 0
-      if recognizeFirmPattern adjacentWord, wordDeck
+      if recognizeFirmPattern previousWord, nextWord, wordDeck
         candidateString = generateFirmString wordDeck
         matching = getResponse candidateString
         if matching.count > 0
           words = words.slice wordDeck.length
-          adjacentWord = wordDeck.pop()
+          nextWord = wordDeck.pop()
           matching.nameString = candidateString
           matchingGroups.push matching
           break
         else
-          adjacentWord = wordDeck.pop()
+          nextWord = wordDeck.pop()
       else
-        adjacentWord = wordDeck.pop()
+        nextWord = wordDeck.pop()
       
       # If no match was found, first try shifting the deck to all upper-case  
       if wordDeck.length is 0 and upperCase is false and !matching?.count?
         upperCase = true
-        adjacentWord = initialAdjacentWord
         repeatDeck = getWordDeck words
         # Only check upper case if the first word of the deck is not entirely lower case
         if !(repeatDeck[0] is repeatDeck[0].toLowerCase())
@@ -438,27 +437,34 @@ findFirmNames = (words) ->
         
     # If no match found remove the first word and try again
     if !matching?.count?
-      adjacentWord = words.shift()
+      previousWord = words.shift()
 
   if matchingGroups.length > 0
     results = {'matchingGroups':matchingGroups}
 
-recognizeFirmPattern = (adjacentWord, words) ->
+recognizeFirmPattern = (previousWord, nextWord, words) ->
   if words.length > 0
-    #Checks involving the popped (previous) word
-    if adjacentWord?
-      # If the first character of the popped (previous) word and the current word are capitalized
-      aFirstCharacter = adjacentWord.substr(0,1)
-      wfFirstCharacter = words[0].substr(0,1)
-      if aFirstCharacter.toUpperCase() is aFirstCharacter and wfFirstCharacter.toUpperCase() is wfFirstCharacter
+    wfc = words[0].substr(0,1)
+    
+    # If the first character of the shifted (previous) word and the current word are capitalized
+    if previousWord?
+      pfc = previousWord.substr(0,1)
+      if pfc.toUpperCase() is pfc and wfc.toUpperCase() is wfc
         return false
+    
+    # If the first character of the shifted (previous) word and the current word are capitalized
+    if nextWord?
+      nfc = nextWord.substr(0,1) 
+      if nfc.toUpperCase() is nfc and wfc.toUpperCase() is wfc
+        return false
+    
     # Check if the first word is entirely lower case
     if words[0] is words[0].toLowerCase()
       return false
     # If only one word, make sure that the word has more than 4 characters
     else if words.length is 1 and words[0].length <= 4 and not words[0].toUpperCase() is words[0]
       return false
-    else if adjacentWord is 'of'
+    else if nextWord is 'of' or previousWord is 'of'
       return false
     else
       return true
