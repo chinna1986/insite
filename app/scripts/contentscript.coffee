@@ -36,7 +36,7 @@ renderFlyout = (node,matches) ->
     flyoutShadow = flyoutRoot.createShadowRoot()
   else 
     flyoutShadow = flyoutRoot.webkitCreateShadowRoot()
-  flyoutShadow.applyAuthorStyles = false
+  #flyoutShadow.applyAuthorStyles = false
 
   flyout = document.createElement 'span'
 
@@ -45,12 +45,20 @@ renderFlyout = (node,matches) ->
     flyoutShadow.appendChild(flyout.firstChild)
 
   for resultKey, resultValue of matches.results
-    councilMemberId = parseInt(resultValue.c ? resultValue.l)
+    leadId = parseInt(resultValue.l)
+    councilMemberId = parseInt(resultValue.c)
+    companyId = parseInt(resultValue.p)
+
     analyticsEvents = ['add-to-consult','name','bio','more']
     for value in analyticsEvents
-      eventElement = flyout.querySelectorAll("#" + value)[resultKey]
+      eventElement = flyoutShadow.querySelectorAll("#"+value)[resultKey]
       if eventElement?
-        setClickHandler eventElement, councilMemberId, value
+        if isNaN(councilMemberId) && isNaN(leadId)
+          setClickHandler eventElement, companyId, value, 'Firm'
+        else if isNaN(leadId)
+          setClickHandler eventElement, councilMemberId, value, 'CouncilMember'
+        else
+          setClickHandler eventElement, councilMemberId, value, 'Lead'
 
   document.body.appendChild flyoutRoot
 
@@ -161,9 +169,9 @@ bindFlyout = (icon,matches) ->
         flyout.remove()
       ), 500
 
-setClickHandler = (eventElement, councilMemberId, key) ->
+setClickHandler = (eventElement, Id, key, type) ->
   eventElement.addEventListener "click", ->
-    chrome.runtime.sendMessage {method:'pushAnalytics', message:['_trackEvent', 'councilMember', "clicked-#{key}", document.location.href, councilMemberId]}, (response) ->
+    chrome.runtime.sendMessage {method:'pushAnalytics', message:['_trackEvent', type, "clicked-#{key}", document.location.href, Id]}, (response) ->
 
 getNodes = (rootNode) ->
   walker = document.createTreeWalker rootNode, NodeFilter.SHOW_ALL, ((node) ->
@@ -203,7 +211,8 @@ processData = (nodes, nodeContentData, nodeWorkerData) ->
       # Bind a flyout to each icon
       icons = parentNode.querySelectorAll('.glg-glyph-list')
       for icon in icons
-        textContent = icon.parentNode.textContent.replace(/[ |\s\u00A0]{2,}/gi," ")
+        textContent = icon.parentNode.textContent
+        #textContent = icon.parentNode.textContent.replace(/[ |\s\u00A0]{2,}/gi," ")
         iconBound = false
         for matchingGroup in nodeMatches.matchingGroups
 

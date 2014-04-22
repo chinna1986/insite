@@ -184,6 +184,7 @@ chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
       setIcon message.message
     when "pushAnalytics"
       _gaq.push(message.message)
+      console.log message.message[0] + message.message[1] + message.message[2] + message.message[3]
       sendResponse {}
     when "search-new"
       workerManager.demand('find names',{'nodeMetaData':message.nodeWorkerData, 'nodeContentData':message.nodeContentData}).then (responses) ->
