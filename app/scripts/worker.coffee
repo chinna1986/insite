@@ -33,7 +33,7 @@ dataQueries =
 # Utility Functions
 #------------------
 getMaxRecords = () ->
-  250000
+  500000
 
 logTiming = (message) ->
   d = new Date()
@@ -344,7 +344,7 @@ self.addEventListener "message", ((e) ->
     when 'load firms' then loadLookups('firm', workerArguments, e.data.counter).then () ->
       self.postMessage generateReturnMessage(workerArguments, demand)
     when 'find names'
-      workerArguments.matches = findAllNames(workerArguments.nodeMetadata)
+      workerArguments.matches = findAllNames(workerArguments.nodeMetaData, workerArguments.nodeContentData)
       self.postMessage({'demand': demand, 'workerArguments': workerArguments})
 
 ), false
@@ -383,13 +383,14 @@ getResults = (matchingIds) ->
     results.push map[matchingId]
   results
 
-findAllNames = (nodeData) ->
+findAllNames = (nodeData, nodeContentData) ->
   matches = {}
   for row, nodeIndex in nodeData
     if type is 'cm' or type is 'lead'
       match = findNames(row.tags, row.words)
     else
-      match = findFirmNames(row.words)
+      textContent = nodeContentData[nodeIndex].textContent
+      match = findFirmNames(textContent)
     if match?
       matches[nodeIndex] = match
   matches
@@ -403,12 +404,13 @@ getFollowingWord = (words, wordDeck) ->
   else
     return null
     
-findFirmNames = (words) ->
+findFirmNames = (textContent) ->
+  words = textContent.split ' '
   matchingGroups = []
   
+  # Iterate over each word, creating a word deck, and checking this deck against the map object
   previousWord = null
   nextWord = null
-  
   while words.length > 0
     # Create a list of on-deck words and iterate backwards
     wordDeck = getWordDeck words
@@ -417,13 +419,10 @@ findFirmNames = (words) ->
     while wordDeck.length > 0
       matching = null
       if recognizeFirmPattern previousWord, nextWord, wordDeck
-        candidateString = generateFirmString wordDeck
+        candidateString = wordDeck.join ' '
         matching = getResponse candidateString
         if matching.count > 0
-          console.log 'starting namestring render'
-          nameString = generateFirmString(words.slice(0,wordDeck.length))
-          console.log nameString
-          matching.nameString = nameString
+          matching.nameString = candidateString
           matchingGroups.push matching
           words = words.slice wordDeck.length
           nextWord = wordDeck.pop()
@@ -433,7 +432,7 @@ findFirmNames = (words) ->
       else
         nextWord = wordDeck.pop()
       
-      # If no match was found, first try shifting the deck to all upper-case  
+      # If no match was found, first try shifting the deck to all upper-case
       if wordDeck.length is 0 and upperCase is false and !matching?.count?
         upperCase = true
         repeatDeck = getWordDeck words
@@ -452,17 +451,17 @@ findFirmNames = (words) ->
 
 recognizeFirmPattern = (previousWord, nextWord, words) ->
   if words.length > 0
-    wfc = words[0].substr(0,1).match(/A-Za-z0-9/)
+    wfc = words[0].substr(0,1)
     
     # If the first character of the shifted (previous) word and the current word are capitalized
     if previousWord?
-      pfc = previousWord.substr(0,1).match(/A-Za-z0-9/)
+      pfc = previousWord.substr(0,1)
       if pfc and pfc[0].toUpperCase() is pfc[0] and wfc and wfc[0].toUpperCase() is wfc[0]
         return false
     
     # If the first character of the shifted (previous) word and the current word are capitalized
     if nextWord?
-      nfc = nextWord.substr(0,1).match(/A-Za-z0-9/)
+      nfc = nextWord.substr(0,1)
       if nfc and nfc[0].toUpperCase() is nfc[0] and wfc and wfc[0].toUpperCase() is wfc[0]
         return false
     
@@ -478,46 +477,7 @@ recognizeFirmPattern = (previousWord, nextWord, words) ->
       return true
   else
       return false
-
-recognizeFirmPatternORIG = (previousWord, nextWord, words) ->
-  if words.length > 0
-    wfc = words[0].substr(0,1)
     
-    # If the first character of the shifted (previous) word and the current word are capitalized
-    if previousWord?
-      pfc = previousWord.substr(0,1)
-      if pfc.toUpperCase() is pfc and wfc.toUpperCase() is wfc
-        return false
-    
-    # If the first character of the shifted (previous) word and the current word are capitalized
-    if nextWord?
-      nfc = nextWord.substr(0,1)
-      if nfc.toUpperCase() is nfc and wfc.toUpperCase() is wfc
-        return false
-    
-    # Check if the first word is entirely lower case
-    if words[0] is words[0].toLowerCase()
-      return false
-    # If only one word, make sure that the word has more than 4 characters
-    else if words.length is 1 and words[0].length <= 4 and not words[0].toUpperCase() is words[0]
-      return false
-    else if nextWord is 'of' or previousWord is 'of'
-      return false
-    else
-      return true
-  else
-      return false
-
-generateFirmString = (words) ->
-  firmName = ''
-  for word, i in words
-    firmName += word + ' '
-  firmName = firmName.replace(/[ ]{2,}/gi," ")
-    .replace(/\ \.\ /g,". ")
-    .replace(/\ \,\ /g,", ")
-    .replace(/^\.{1,3}/gi,"")
-  return firmName.trim()
-
 findNames = (tags, words) ->
   matchingGroups = []
   while words.length > 0

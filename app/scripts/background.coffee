@@ -18,7 +18,10 @@ vegaUser = {}
 rePunctuation = /[?:!.,;]*$/g
 
 decorateFlyoutControl = (text) ->
-  "<span class='glggotnames-flyout-control' style='background-color:rgba(255,223,120,0.3);'>"+text+"&nbsp;<span class='glg-glyph-list' style='border: solid 1px; border-radius: 0.4em; font-size: .8em; padding: .1em 0.2em;'></span></span>"
+  if text.indexOf('glg-glyph-list') > 0
+    return text
+  else
+    return "<span class='glggotnames-flyout-control' style='background-color:rgba(255,223,120,0.3);'>"+text+"&nbsp;<span class='glg-glyph-list' style='border: solid 1px; border-radius: 0.4em; font-size: .8em; padding: .1em 0.2em;'></span></span>"
 
 loadLookups = (options) ->
 
@@ -183,7 +186,7 @@ chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
       console.log message.message[0] + message.message[1] + message.message[2] + message.message[3]
       sendResponse {}
     when "search-new"
-      workerManager.demand('find names',{'nodeMetadata':message.nodeWorkerData}).then (responses) ->
+      workerManager.demand('find names',{'nodeMetaData':message.nodeWorkerData, 'nodeContentData':message.nodeContentData}).then (responses) ->
         matches = coalesceMatches responses, message.nodeContentData
         sendResponse matches
     else
