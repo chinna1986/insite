@@ -421,8 +421,8 @@ findFirmNames = (words) ->
         matching = getResponse candidateString
         if matching.count > 0
           console.log 'starting namestring render'
-          nameString = words.slice(0,wordDeck.length).join(' ').trim()
-          console.log nameString
+          nameString = generateFirmString(words.slice(0,wordDeck.length))
+          console.log nameString.trim()
           matching.nameString = nameString
           matchingGroups.push matching
           words = words.slice wordDeck.length
@@ -479,6 +479,35 @@ recognizeFirmPattern = (previousWord, nextWord, words) ->
   else
       return false
 
+recognizeFirmPatternORIG = (previousWord, nextWord, words) ->
+  if words.length > 0
+    wfc = words[0].substr(0,1)
+    
+    # If the first character of the shifted (previous) word and the current word are capitalized
+    if previousWord?
+      pfc = previousWord.substr(0,1)
+      if pfc.toUpperCase() is pfc and wfc.toUpperCase() is wfc
+        return false
+    
+    # If the first character of the shifted (previous) word and the current word are capitalized
+    if nextWord?
+      nfc = nextWord.substr(0,1)
+      if nfc.toUpperCase() is nfc and wfc.toUpperCase() is wfc
+        return false
+    
+    # Check if the first word is entirely lower case
+    if words[0] is words[0].toLowerCase()
+      return false
+    # If only one word, make sure that the word has more than 4 characters
+    else if words.length is 1 and words[0].length <= 4 and not words[0].toUpperCase() is words[0]
+      return false
+    else if nextWord is 'of' or previousWord is 'of'
+      return false
+    else
+      return true
+  else
+      return false
+
 generateFirmString = (words) ->
   firmName = ''
   for word, i in words
@@ -487,7 +516,7 @@ generateFirmString = (words) ->
     .replace(/\ \.\ /g,". ")
     .replace(/\ \,\ /g,", ")
     .replace(/^\.{1,3}/gi,"")
-    return firmName.trim()
+  return firmName.trim()
 
 findNames = (tags, words) ->
   matchingGroups = []
