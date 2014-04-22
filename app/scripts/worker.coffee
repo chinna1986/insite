@@ -422,7 +422,7 @@ findFirmNames = (textContent) ->
         candidateString = wordDeck.join ' '
         matching = getResponse candidateString
         if matching.count > 0
-          matching.nameString = candidateString
+          matching.nameString = words.slice(0,wordDeck.length).join(' ')
           matchingGroups.push matching
           words = words.slice wordDeck.length
           nextWord = wordDeck.pop()
