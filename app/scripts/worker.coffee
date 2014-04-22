@@ -422,7 +422,7 @@ findFirmNames = (words) ->
         if matching.count > 0
           console.log 'starting namestring render'
           nameString = generateFirmString(words.slice(0,wordDeck.length))
-          console.log nameString.trim()
+          console.log nameString
           matching.nameString = nameString
           matchingGroups.push matching
           words = words.slice wordDeck.length
