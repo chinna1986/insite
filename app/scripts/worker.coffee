@@ -422,9 +422,7 @@ findFirmNames = (textContent) ->
         candidateString = wordDeck.join ' '
         matching = getResponse candidateString
         if matching.count > 0
-          console.log 'starting namestring render'
-          nameString = words.slice(0,wordDeck.length).join(' ').trim()
-          matching.nameString = nameString
+          matching.nameString = candidateString
           matchingGroups.push matching
           words = words.slice wordDeck.length
           nextWord = wordDeck.pop()
@@ -479,7 +477,7 @@ recognizeFirmPattern = (previousWord, nextWord, words) ->
       return true
   else
       return false
-
+    
 findNames = (tags, words) ->
   matchingGroups = []
   while words.length > 0
