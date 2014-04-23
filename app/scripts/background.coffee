@@ -172,7 +172,7 @@ coalesceMatches = (responses, nodeMetadata) ->
       nameString = coalescedMatchingGroup.nameString
       tempTextContent = ' '+coalescedMatchingNode.textContent+' '
       tempTextContent = tempTextContent.replace nameString, decorateFlyoutControl(nameString)
-      coalescedMatchingNode.textContent = tempTextContent
+      coalescedMatchingNode.textContent = tempTextContent.substr(1,tempTextContent.length-2)
   
   return coalescedMatchingNodes
 
