@@ -4,6 +4,7 @@
 deltaUpdateInterval = 1000*10            # How often to perform deltas (in milliseconds)
 completeUpdateInterval = 3*24*60*60*1000 # How often to perform complete updates (in milliseconds)
 rePunctuation = /[?:!.,;]*$/g
+reLetters = /[A-Za-z]/
 lastUpdate = null
 lastCompleteUpdate = null
 fs = []
@@ -72,7 +73,7 @@ cleanName = (token) ->
   if type is 'cm' or type is 'lead'
     diacritics.remove(token).trim().toLowerCase().replace(rePunctuation, "")
   else
-    token
+    token.toLowerCase()
 
 encodeDate = (a) ->
   encodeURIComponent(a.getUTCMonth()+1 + "/" + a.getUTCDate() + "/" + a.getUTCFullYear() + " " + a.getUTCHours() + ":" + a.getUTCMinutes() + ":" + a.getUTCSeconds())
@@ -366,7 +367,6 @@ getResponse = (query) ->
   if type is 'cm' or type is 'lead'
     normalizedQuery = diacritics.remove(query).toLowerCase()
   else
-    #normalizedQuery = diacritics.remove(query).toLowerCase().trim().replace(rePunctuation, "")
     normalizedQuery = query.trim()
 
   response = {}
@@ -393,7 +393,7 @@ findAllNames = (nodeData, nodeContentData) ->
       match = findFirmNames(textContent)
     if match?
       matches[nodeIndex] = match
-  matches
+  return matches
 
 getWordDeck = (words) ->
   return words.slice 0, 6
@@ -415,11 +415,10 @@ findFirmNames = (textContent) ->
     # Create a list of on-deck words and iterate backwards
     wordDeck = getWordDeck words
     nextWord = getFollowingWord words, wordDeck
-    upperCase = false
     while wordDeck.length > 0
       matching = null
       if recognizeFirmPattern previousWord, nextWord, wordDeck
-        candidateString = wordDeck.join ' '
+        candidateString = wordDeck.join(' ').toLowerCase()
         matching = getResponse candidateString
         if matching.count > 0
           matching.nameString = words.slice(0,wordDeck.length).join(' ')
@@ -431,17 +430,6 @@ findFirmNames = (textContent) ->
           nextWord = wordDeck.pop()
       else
         nextWord = wordDeck.pop()
-      
-      # If no match was found, first try shifting the deck to all upper-case
-      if wordDeck.length is 0 and upperCase is false and !matching?.count?
-        upperCase = true
-        repeatDeck = getWordDeck words
-        # Only check upper case if the first word of the deck is not entirely lower case
-        if !(repeatDeck[0] is repeatDeck[0].toLowerCase())
-          wordDeck = repeatDeck
-          nextWord = getFollowingWord words, wordDeck
-          for word, i in wordDeck
-            wordDeck[i] = word.toUpperCase()
         
     # If no match found remove the first word and try again
     previousWord = words.shift()
@@ -451,25 +439,25 @@ findFirmNames = (textContent) ->
 
 recognizeFirmPattern = (previousWord, nextWord, words) ->
   if words.length > 0
-    wfc = words[0].substr(0,1)
+    wfc = words[0].substr(0,1).match(reLetters)
     
     # If the first character of the shifted (previous) word and the current word are capitalized
     if previousWord?
-      pfc = previousWord.substr(0,1)
-      if pfc.toUpperCase() is pfc and wfc.toUpperCase() is wfc
+      pfc = previousWord.substr(0,1).match(reLetters)
+      if pfc and pfc[0].toUpperCase() is pfc[0] and wfc and wfc[0].toUpperCase() is wfc[0]
         return false
     
     # If the first character of the shifted (previous) word and the current word are capitalized
     if nextWord?
-      nfc = nextWord.substr(0,1)
-      if nfc.toUpperCase() is nfc and wfc.toUpperCase() is wfc
+      nfc = nextWord.substr(0,1).match(reLetters)
+      if nfc and nfc[0].toUpperCase() is nfc[0] and wfc and wfc[0].toUpperCase() is wfc[0]
         return false
     
     # Check if the first word is entirely lower case
     if words[0] is words[0].toLowerCase()
       return false
     # If only one word, make sure that the word has more than 4 characters
-    else if words.length is 1 and words[0].length <= 4 and not words[0].toUpperCase() is words[0]
+    else if words.length is 1 and words[0].length <= 3 and not (words[0].toUpperCase() is words[0])
       return false
     else if nextWord is 'of' or previousWord is 'of'
       return false
