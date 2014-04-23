@@ -422,6 +422,9 @@ findFirmNames = (textContent) ->
         candidateString = wordDeck.join ' '
         matching = getResponse candidateString
         if matching.count > 0
+          #find the original string - in case we found our match in the gazeeter with uppercase
+          testStringLoc = textContent.toLowerCase().indexOf(candidateString.toLowerCase())
+          candidateString = textContent.substring(testStringLoc, candidateString.length+testStringLoc)
           matching.nameString = candidateString
           matchingGroups.push matching
           words = words.slice wordDeck.length
