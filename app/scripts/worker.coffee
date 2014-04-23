@@ -456,13 +456,13 @@ recognizeFirmPattern = (previousWord, nextWord, words) ->
     # If the first character of the shifted (previous) word and the current word are capitalized
     if previousWord?
       pfc = previousWord.substr(0,1)
-      if pfc and pfc[0].toUpperCase() is pfc[0] and wfc and wfc[0].toUpperCase() is wfc[0]
+      if pfc.toUpperCase() is pfc and wfc.toUpperCase() is wfc
         return false
     
     # If the first character of the shifted (previous) word and the current word are capitalized
     if nextWord?
       nfc = nextWord.substr(0,1)
-      if nfc and nfc[0].toUpperCase() is nfc[0] and wfc and wfc[0].toUpperCase() is wfc[0]
+      if nfc.toUpperCase() is nfc and wfc.toUpperCase() is wfc
         return false
     
     # Check if the first word is entirely lower case

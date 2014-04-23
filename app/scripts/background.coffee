@@ -8,9 +8,10 @@ logTiming = (message) ->
   console.log "#{d.getHours()}:#{d.getMinutes()}:#{d.getSeconds()}:#{d.getMilliseconds()} - #{message}"
 
 reSpecialChars = /([.?*+^$[\]\\(){}|-])/g
+reLetters = /[A-Za-z]/g
 escapeRe = (str) ->
   (str+'').replace(reSpecialChars, "\\$1")
-
+  
 # Gobals
 workerManager = []
 openConsults = []
@@ -169,11 +170,29 @@ coalesceMatches = (responses, nodeMetadata) ->
   for key, coalescedMatchingNode of coalescedMatchingNodes
     coalescedMatchingNode.textContent = nodeMetadata[key].textContent
     for coalescedMatchingGroup in coalescedMatchingNode.matchingGroups
+      textContent = coalescedMatchingNode.textContent
       nameString = coalescedMatchingGroup.nameString
-      tempTextContent = ' '+coalescedMatchingNode.textContent+' '
-      tempTextContent = tempTextContent.replace nameString, decorateFlyoutControl(nameString)
-      coalescedMatchingNode.textContent = tempTextContent.substr(1,tempTextContent.length-2)
-  
+      
+      # Set up first iteration
+      leftSide = ""
+      rightSide = textContent
+      nameStringStartIndex = textContent.indexOf(nameString)
+      while nameStringStartIndex > -1
+        
+        # Get the left and right characters
+        leftCharacter = textContent.substr(nameStringStartIndex - 1, 1)
+        rightCharacter = textContent.substr(nameStringStartIndex + nameString.length, 1)
+        
+        # Check bounderies of matched term
+        if (nameStringStartIndex + nameString.length is textContent.length) or rightCharacter.match(reLetters) is null
+          if (nameStringStartIndex is 0) or leftCharacter.match(reLetters) is null
+            coalescedMatchingNode.textContent = leftSide + rightSide.replace(nameString, decorateFlyoutControl(nameString))
+
+        # Set up next iteration
+        nameStringStartIndex = textContent.indexOf(nameString, nameStringStartIndex + 1)
+        leftSide = textContent.substr(0, nameStringStartIndex)
+        rightSide = textContent.substr(nameStringStartIndex)
+        
   return coalescedMatchingNodes
 
 chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
@@ -186,7 +205,6 @@ chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
       setIcon message.message
     when "pushAnalytics"
       _gaq.push(message.message)
-      console.log message.message[0] + message.message[1] + message.message[2] + message.message[3]
       sendResponse {}
     when "search-new"
       workerManager.demand('find names',{'nodeMetaData':message.nodeWorkerData, 'nodeContentData':message.nodeContentData}).then (responses) ->
