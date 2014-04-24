@@ -19,9 +19,6 @@ vegaUser = {}
 rePunctuation = /[?:!.,;]*$/g
 
 decorateFlyoutControl = (text) ->
-  if text.indexOf('glg-glyph-list') > 0
-    return text
-  else
     return "<span class='glggotnames-flyout-control' style='background-color:rgba(255,223,120,0.3);'>"+text+"&nbsp;<span class='glg-glyph-list' style='border: solid 1px; border-radius: 0.4em; font-size: .8em; padding: .1em 0.2em;'></span></span>"
 
 loadLookups = (options) ->
@@ -185,7 +182,7 @@ coalesceMatches = (responses, nodeMetadata) ->
         if i < (textComponents.length - 1)
           lc = textComponent.slice(-1)
           rc = textComponents[i+1].slice(0,1)
-          if ((lc is '') or lc.match(reLetters) is null) and ((rc is '' ) or (rc.match(reLetters) is null))
+          if ((lc is '') or lc.match(reLetters) is null) and ((rc is '' ) or (rc.match(reLetters) is null)) and textComponent.indexOf('glggotnames-flyout-control') is -1
             textContent += decoratedNameString
           else
             textContent += nameString
