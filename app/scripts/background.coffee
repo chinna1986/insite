@@ -8,10 +8,10 @@ logTiming = (message) ->
   console.log "#{d.getHours()}:#{d.getMinutes()}:#{d.getSeconds()}:#{d.getMilliseconds()} - #{message}"
 
 reSpecialChars = /([.?*+^$[\]\\(){}|-])/g
-reLetters = /[A-Za-z]/g
+reLetters = /[A-Za-z]/
 escapeRe = (str) ->
   (str+'').replace(reSpecialChars, "\\$1")
-  
+
 # Gobals
 workerManager = []
 openConsults = []
@@ -170,29 +170,28 @@ coalesceMatches = (responses, nodeMetadata) ->
   for key, coalescedMatchingNode of coalescedMatchingNodes
     coalescedMatchingNode.textContent = nodeMetadata[key].textContent
     for coalescedMatchingGroup in coalescedMatchingNode.matchingGroups
-      textContent = coalescedMatchingNode.textContent
-      nameString = coalescedMatchingGroup.nameString
-      
-      # Set up first iteration
-      leftSide = ""
-      rightSide = textContent
-      nameStringStartIndex = textContent.indexOf(nameString)
-      while nameStringStartIndex > -1
-        
-        # Get the left and right characters
-        leftCharacter = textContent.substr(nameStringStartIndex - 1, 1)
-        rightCharacter = textContent.substr(nameStringStartIndex + nameString.length, 1)
-        
-        # Check bounderies of matched term
-        if (nameStringStartIndex + nameString.length is textContent.length) or rightCharacter.match(reLetters) is null
-          if (nameStringStartIndex is 0) or leftCharacter.match(reLetters) is null
-            coalescedMatchingNode.textContent = leftSide + rightSide.replace(nameString, decorateFlyoutControl(nameString))
 
-        # Set up next iteration
-        nameStringStartIndex = textContent.indexOf(nameString, nameStringStartIndex + 1)
-        leftSide = textContent.substr(0, nameStringStartIndex)
-        rightSide = textContent.substr(nameStringStartIndex)
-        
+      nameString = coalescedMatchingGroup.nameString
+      decoratedNameString = decorateFlyoutControl(nameString)
+      textComponents = coalescedMatchingNode.textContent.split nameString
+      textContent = ''
+
+      for textComponent, i in textComponents
+
+        # Reassemble the string
+        textContent += textComponent
+
+        # Check bounderies of matched term
+        if i < (textComponents.length - 1)
+          lc = textComponent.slice(-1)
+          rc = textComponents[i+1].slice(0,1)
+          if ((lc is '') or lc.match(reLetters) is null) and ((rc is '' ) or (rc.match(reLetters) is null))
+            textContent += decoratedNameString
+          else
+            textContent += nameString
+
+      coalescedMatchingNode.textContent = textContent
+
   return coalescedMatchingNodes
 
 chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
