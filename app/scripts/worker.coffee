@@ -34,7 +34,7 @@ dataQueries =
 # Utility Functions
 #------------------
 getMaxRecords = () ->
-  500000
+  250000
 
 logTiming = (message) ->
   d = new Date()
@@ -400,14 +400,14 @@ getWordDeck = (words) ->
 
 getFollowingWord = (words, wordDeck) ->
   if words.length > wordDeck.length
-    return words[wordDeck.length] 
+    return words[wordDeck.length]
   else
     return null
-    
+
 findFirmNames = (textContent) ->
   words = textContent.split ' '
   matchingGroups = []
-  
+
   # Iterate over each word, creating a word deck, and checking this deck against the map object
   previousWord = null
   nextWord = null
@@ -430,7 +430,7 @@ findFirmNames = (textContent) ->
           nextWord = wordDeck.pop()
       else
         nextWord = wordDeck.pop()
-        
+
     # If no match found remove the first word and try again
     previousWord = words.shift()
 
@@ -440,19 +440,19 @@ findFirmNames = (textContent) ->
 recognizeFirmPattern = (previousWord, nextWord, words) ->
   if words.length > 0
     wfc = words[0].substr(0,1).match(reLetters)
-    
+
     # If the first character of the shifted (previous) word and the current word are capitalized
     if previousWord?
       pfc = previousWord.substr(0,1).match(reLetters)
       if pfc and pfc[0].toUpperCase() is pfc[0] and wfc and wfc[0].toUpperCase() is wfc[0]
         return false
-    
+
     # If the first character of the shifted (previous) word and the current word are capitalized
     if nextWord?
       nfc = nextWord.substr(0,1).match(reLetters)
       if nfc and nfc[0].toUpperCase() is nfc[0] and wfc and wfc[0].toUpperCase() is wfc[0]
         return false
-    
+
     # Check if the first word is entirely lower case
     if words[0] is words[0].toLowerCase()
       return false
@@ -465,7 +465,7 @@ recognizeFirmPattern = (previousWord, nextWord, words) ->
       return true
   else
       return false
-    
+
 findNames = (tags, words) ->
   matchingGroups = []
   while words.length > 0

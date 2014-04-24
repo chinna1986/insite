@@ -27,7 +27,6 @@ loadLookups = (options) ->
     'startId': 0
     'includeBiography': options.includeBiography
   workerConfig = [{
-    ###
       workerUrl: "scripts/worker.js"
       initialDemand: "load leads"
       budgetedWorkers: 10
@@ -40,12 +39,11 @@ loadLookups = (options) ->
       officiallyOutOfMemory: "officiallyOutOfMemory"
       workerArguments: workerArguments
     },{
-    ###
-    workerUrl: "scripts/worker.js"
-    initialDemand: "load firms"
-    budgetedWorkers: 10
-    officiallyOutOfMemory: "officiallyOutOfMemory"
-    workerArguments: workerArguments
+      workerUrl: "scripts/worker.js"
+      initialDemand: "load firms"
+      budgetedWorkers: 10
+      officiallyOutOfMemory: "officiallyOutOfMemory"
+      workerArguments: workerArguments
   }]
   workerManager = new malory(workerConfig)
 
@@ -182,7 +180,7 @@ coalesceMatches = (responses, nodeMetadata) ->
         if i < (textComponents.length - 1)
           lc = textComponent.slice(-1)
           rc = textComponents[i+1].slice(0,1)
-          if ((lc is '') or lc.match(reLetters) is null) and ((rc is '' ) or (rc.match(reLetters) is null)) and textComponent.indexOf('glggotnames-flyout-control') is -1
+          if ((lc is '') or lc.match(reLetters) is null) and ((rc is '' ) or (rc.match(reLetters) is null)) and isTroubleAhead(textComponents.slice(i+1),'glg-glyph-list') is false
             textContent += decoratedNameString
           else
             textContent += nameString
@@ -190,6 +188,12 @@ coalesceMatches = (responses, nodeMetadata) ->
       coalescedMatchingNode.textContent = textContent
 
   return coalescedMatchingNodes
+
+isTroubleAhead = (remainingTextComponents, searchString) ->
+  for component in remainingTextComponents
+    if component.indexOf(searchString) isnt -1
+      return true
+  return false
 
 chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
   response = null
