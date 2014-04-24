@@ -34,9 +34,8 @@ renderFlyout = (node,matches) ->
 
   if !HTMLElement.prototype.webkitCreateShadowRoot
     flyoutShadow = flyoutRoot.createShadowRoot()
-  else 
+  else
     flyoutShadow = flyoutRoot.webkitCreateShadowRoot()
-  #flyoutShadow.applyAuthorStyles = false
 
   flyout = document.createElement 'span'
 
@@ -203,30 +202,28 @@ processData = (nodes, nodeContentData, nodeWorkerData) ->
 
       # Insert the highlighting
       parentNode = nodes[nodeIndex].parentNode
-      newNode = document.createElement 'span'
-      if nodeMatches.textContent.search('glggotnames-flyout-control') > 0
-        newNode.innerHTML = nodeMatches.textContent
-        parentNode.replaceChild newNode, nodes[nodeIndex]
+      if parentNode and parentNode.className.search('glggotnames-flyout-control') is -1
+        newNode = document.createElement 'span'
+        if nodeMatches.textContent.search('glggotnames-flyout-control') > 0
+          newNode.innerHTML = nodeMatches.textContent
+          parentNode.replaceChild newNode, nodes[nodeIndex]
 
-      # Bind a flyout to each icon
-      icons = parentNode.querySelectorAll('.glg-glyph-list')
-      for icon in icons
-        textContent = icon.parentNode.textContent
-        #textContent = icon.parentNode.textContent.replace(/[ |\s\u00A0]{2,}/gi," ")
-        iconBound = false
-        for matchingGroup in nodeMatches.matchingGroups
+        # Bind a flyout to each icon
+        icons = parentNode.querySelectorAll('.glg-glyph-list')
+        for icon in icons
+          textContent = icon.parentNode.textContent
+          for matchingGroup in nodeMatches.matchingGroups
 
-          # Populate allMatchingData
-          if matchingGroup.cm?
-            for cm in matchingGroup.cm
-              allMatchingData[cm] = null
-          if matchingGroup.results?
-            for result in matchingGroup.results
-              if result.c?
-                allMatchingData[result.c] = null
-          if textContent.indexOf(matchingGroup.nameString) isnt -1 and !iconBound
-            bindFlyout icon, matchingGroup
-            iconBound = true
+            # Populate allMatchingData
+            if matchingGroup.cm?
+              for cm in matchingGroup.cm
+                allMatchingData[cm] = null
+            if matchingGroup.results?
+              for result in matchingGroup.results
+                if result.c?
+                  allMatchingData[result.c] = null
+            if textContent.indexOf(matchingGroup.nameString) isnt -1
+              bindFlyout icon, matchingGroup
 
 toggleExtension = (isDisabled) ->
   console.log 'isDisabled: ' + isDisabled
