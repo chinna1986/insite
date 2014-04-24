@@ -8,6 +8,7 @@ logTiming = (message) ->
   console.log "#{d.getHours()}:#{d.getMinutes()}:#{d.getSeconds()}:#{d.getMilliseconds()} - #{message}"
 
 reSpecialChars = /([.?*+^$[\]\\(){}|-])/g
+reLetters = /[A-Za-z]/
 escapeRe = (str) ->
   (str+'').replace(reSpecialChars, "\\$1")
 
@@ -18,9 +19,6 @@ vegaUser = {}
 rePunctuation = /[?:!.,;]*$/g
 
 decorateFlyoutControl = (text) ->
-  if text.indexOf('glg-glyph-list') > 0
-    return text
-  else
     return "<span class='glggotnames-flyout-control' style='background-color:rgba(255,223,120,0.3);'>"+text+"&nbsp;<span class='glg-glyph-list' style='border: solid 1px; border-radius: 0.4em; font-size: .8em; padding: .1em 0.2em;'></span></span>"
 
 loadLookups = (options) ->
@@ -169,11 +167,28 @@ coalesceMatches = (responses, nodeMetadata) ->
   for key, coalescedMatchingNode of coalescedMatchingNodes
     coalescedMatchingNode.textContent = nodeMetadata[key].textContent
     for coalescedMatchingGroup in coalescedMatchingNode.matchingGroups
+
       nameString = coalescedMatchingGroup.nameString
-      tempTextContent = ' '+coalescedMatchingNode.textContent+' '
-      tempTextContent = tempTextContent.replace nameString, decorateFlyoutControl(nameString)
-      coalescedMatchingNode.textContent = tempTextContent.substr(1,tempTextContent.length-2)
-  
+      decoratedNameString = decorateFlyoutControl(nameString)
+      textComponents = coalescedMatchingNode.textContent.split nameString
+      textContent = ''
+
+      for textComponent, i in textComponents
+
+        # Reassemble the string
+        textContent += textComponent
+
+        # Check bounderies of matched term
+        if i < (textComponents.length - 1)
+          lc = textComponent.slice(-1)
+          rc = textComponents[i+1].slice(0,1)
+          if ((lc is '') or lc.match(reLetters) is null) and ((rc is '' ) or (rc.match(reLetters) is null)) and textComponent.indexOf('glggotnames-flyout-control') is -1
+            textContent += decoratedNameString
+          else
+            textContent += nameString
+
+      coalescedMatchingNode.textContent = textContent
+
   return coalescedMatchingNodes
 
 chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
@@ -186,7 +201,6 @@ chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
       setIcon message.message
     when "pushAnalytics"
       _gaq.push(message.message)
-      console.log message.message[0] + message.message[1] + message.message[2] + message.message[3]
       sendResponse {}
     when "search-new"
       workerManager.demand('find names',{'nodeMetaData':message.nodeWorkerData, 'nodeContentData':message.nodeContentData}).then (responses) ->
