@@ -3,7 +3,7 @@
 #--------
 deltaUpdateInterval = 1000*10            # How often to perform deltas (in milliseconds)
 completeUpdateInterval = 3*24*60*60*1000 # How often to perform complete updates (in milliseconds)
-wordBlacklist = {'Read':null,'April':null,'New':null,'Science':null,'With':null}
+wordBlacklist = {'Read':null,'April':null,'New':null,'Science':null,'With':null,'Main':null,'Random':null,'Jobs':null,'Science':null,'Protest':null,'Next':null}
 rePunctuation = /[?:!.,;]*$/g
 reLetters = /[A-Za-z]/
 lastUpdate = null
