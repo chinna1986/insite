@@ -205,7 +205,9 @@ coalesceMatches = (responses, nodeMetadata) ->
 isTroubleAhead = (remainingTextComponents, searchString) ->
   for component in remainingTextComponents
     if component.indexOf(searchString) isnt -1
-      return true
+      if component.indexOf('glggotnames-flyout-control') is -1
+        console.log 'There is trouble ahead ' + component
+        return true
   return false
 
 chrome.runtime.onMessage.addListener (message, sender, sendResponse) ->
