@@ -3,6 +3,7 @@
 #--------
 deltaUpdateInterval = 1000*10            # How often to perform deltas (in milliseconds)
 completeUpdateInterval = 3*24*60*60*1000 # How often to perform complete updates (in milliseconds)
+wordBlacklist = {'Read':null,'April':null,'New':null,'Science':null,'With':null}
 rePunctuation = /[?:!.,;]*$/g
 reLetters = /[A-Za-z]/
 lastUpdate = null
@@ -460,6 +461,8 @@ recognizeFirmPattern = (previousWord, nextWord, words) ->
     else if words.length is 1 and words[0].length <= 3 and not (words[0].toUpperCase() is words[0])
       return false
     else if nextWord is 'of' or previousWord is 'of'
+      return false
+    else if (words.length is 1) and (words[0] of wordBlacklist)
       return false
     else
       return true
