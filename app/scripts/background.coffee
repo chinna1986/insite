@@ -94,13 +94,18 @@ coalesceMatches = (responses, nodeMetadata) ->
       if !coalescedMatchingNodes[nodeIndex]?
         coalescedMatchingNodes[nodeIndex] = nodeData
       else
-        for matchingGroup in nodeData.matchingGroups
+        for matchingIndex, matchingGroup of nodeData.matchingGroups
 
           # Check if this match has already been populated by a previous shard
-          coalescedMatchingGroup = null
-          for candidateCoalescedMatchingGroup in coalescedMatchingNodes[nodeIndex].matchingGroups
-            if candidateCoalescedMatchingGroup.nameString is matchingGroup.nameString
-              coalescedMatchingGroup = candidateCoalescedMatchingGroup
+          insert = true
+          coalescedMatchingGroups = coalescedMatchingNodes[nodeIndex].matchingGroups
+          for coalescedIndex, coalescedMatchingGroup of coalescedMatchingGroups
+            candidateName = matchingGroup.nameString
+            coalescedName = coalescedMatchingGroup.nameString
+
+            # If the candiate name is the same as the coalesced name
+            if coalescedName is candidateName
+              insert = false
 
               # Add open consults and vega user
               coalescedMatchingGroup.openConsults =  openConsults
@@ -127,10 +132,18 @@ coalesceMatches = (responses, nodeMetadata) ->
               for key, result of matchingGroup.results
                 coalescedMatchingGroup.results.push result
 
+
+            # If the candidate name is longer, remove the similar but incorrect coalesced group if necessary
+            else if (candidateName.length > coalescedName.length) and (candidateName.indexOf(coalescedName) isnt -1)
+              coalescedMatchingGroups.splice(coalescedIndex,1)
+
+            # Otherwise check if the coalesced name contains the candidate name
+            else if coalescedName.indexOf(candidateName) isnt -1
+              insert = false
+
           # If this is a new match for a textnode
-          if coalescedMatchingGroup is null
-            coalescedMatchingGroup = matchingGroup
-            coalescedMatchingNodes[nodeIndex].matchingGroups.push coalescedMatchingGroup
+          if insert
+            coalescedMatchingGroups.push matchingGroup
 
 
   for key, coalescedMatchingNode of coalescedMatchingNodes
