@@ -18,7 +18,7 @@ maxId = -1
 includeBiography = false
 
 # Query Locations
-baseUrl = 'http://query.glgroup.com'
+baseUrl = 'http://epiquery.glgroup.com'
 dataQueries =
   'completeQueries':
     'status': baseUrl+'/gotNames/dw/getStatus.mysql.mustache'
