@@ -1,4 +1,4 @@
-trackingenabled = true unless trackingenabled?
+trackingenabled = false unless trackingenabled?
 
 _gaq = _gaq or []
 _gaq.push ["_setAccount", "UA-46919569-1"]
