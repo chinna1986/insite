@@ -379,6 +379,12 @@
     margin: 0em;
   }
 
+  .three-col {
+    -moz-column-count: 3;
+    -moz-column-gap: 20px;
+    -webkit-column-count: 3;
+    -webkit-column-gap: 20px;
+  }
 </style>
 
 
@@ -426,15 +432,11 @@
             {{t}} at
           {{/t}}
           {{o}}
-          {{#u}}
-            current CMs: {{u}}
-          {{/u}}
-          {{#r}}
-            former CMs: {{r}}
-          {{/r}}
-          {{#d}}
-            current Leads: {{d}}
-          {{/d}}
+          <p>
+            {{#u}}{{u}}&nbsp;CMs&nbsp;{{/u}}
+            {{#r}}&nbsp;{{r}}&nbsp;Former&nbsp;CMs&nbsp;{{/r}}
+            {{#d}}&nbsp;{{d}}&nbsp;Leads&nbsp;{{/d}}
+          </p>
         </div>
         <div class="detail-text">
           {{b}} <a id="more"
