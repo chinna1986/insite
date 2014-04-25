@@ -226,7 +226,6 @@ processData = (nodes, nodeContentData, nodeWorkerData) ->
               bindFlyout icon, matchingGroup
 
 toggleExtension = (isDisabled) ->
-  console.log 'isDisabled: ' + isDisabled
   chrome.runtime.sendMessage {method:'setIcon', message: isDisabled}, (response) ->
 
   # if we're enabled, find names and add flyouts
